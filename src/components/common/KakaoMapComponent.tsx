@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import BusStopVO from '../models/BusStopVO';
+import CCTVInfoVO from '../models/CCTVInfoVO';
+import LightInfoVO from '../models/LightInfoVO';
 
-const KakaoMapComponent = () => {
+interface KakaoMapComponentProps {
+    busStopDataList: BusStopVO[],
+    cctvDataList: CCTVInfoVO[],
+    lightDataList: LightInfoVO[],
+}
+
+const KakaoMapComponent = ({
+    busStopDataList, cctvDataList, lightDataList
+} : KakaoMapComponentProps) => {
     const [mapState, setMapState] = useState<any>();
     const [myLatLng, setMyLatLng] = useState();
     const [lat, setLat] = useState<number>();
@@ -80,14 +91,30 @@ const KakaoMapComponent = () => {
             circle_100.setPosition(clickedLatLng);
             circle_200.setPosition(clickedLatLng);
             circle_500.setPosition(clickedLatLng);
-			console.log(
-				"클릭한 위치의 좌표:",
-				clickedLatLng.getLat(),
-				clickedLatLng.getLng()
-            );
+			// console.log(
+			// 	"클릭한 위치의 좌표:",
+			// 	clickedLatLng.getLat(),
+			// 	clickedLatLng.getLng()
+            // );
         });
             
     }, [])
+
+    const getDistanceFromLatLonInKm = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+        const deg2rad = (deg: number) => {
+            return deg * (Math.PI / 180)
+        }
+        const R = 6371  // Radius of the earth in km
+        const dLat = deg2rad(lat2 - lat1)
+        const dLon = deg2rad(lng2 - lng1)
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) *
+          Math.cos(deg2rad(lat2)) *
+          Math.sin(dLon / 2) *
+            Math.sin(dLon / 2)
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        const d = R * c // Distance in km
+    }
 
     return (
         <div id='map'></div>

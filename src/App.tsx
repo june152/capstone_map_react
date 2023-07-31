@@ -2,6 +2,12 @@ import React, { useEffect, useState } from 'react';
 import KakaoMapComponent from './components/common/KakaoMapComponent';
 import Pentagon from './components/common/Pentagon';
 import Logo from './assets/logo.png'
+import GetBusInfoAPI from './apis/GetBusInfoAPI';
+import BusStopVO from './components/models/BusStopVO';
+import GetCCTVInfoAPI from './apis/GetCCTVInfoAPI';
+import CCTVInfoVO from './components/models/CCTVInfoVO';
+import GetLightInfoAPI from './apis/GetLightInfoAPI';
+import LightInfoVO from './components/models/LightInfoVO';
 
 function App() {
   // 스크립트 로드 여부
@@ -12,19 +18,29 @@ function App() {
 	const [conArr, setConArr] = useState([100, 100, 100, 100, 100, 100, 100, 100, 100])
 	const [resArr, setResArr] = useState([100, 100, 100, 100, 100, 100])
 	const [playArr, setPlayArr] = useState([100, 100, 100, 100, 100, 100])
+	//버스정류장 데이터
+	const [busStopDataList, setBusStopDataList] = useState([] as BusStopVO[])
+	//CCTV 데이터
+	const [cctvDataList, setCctvDataList] = useState([] as CCTVInfoVO[])
+	//신호등 데이터
+	const [lightDataList, setLightDataList] = useState([] as LightInfoVO[])
 
   useEffect(() => {
-		// 카카오 지도 API 스크립트 동적으로 로드
-		const script = document.createElement("script");
-		script.async = true;
-		script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=ba63d442ec8e460a727e5030c9e0436b&autoload=false&libraries=services,clusterer,drawing`;
-		document.head.appendChild(script);
+	// 카카오 지도 API 스크립트 동적으로 로드
+	const script = document.createElement("script");
+	script.async = true;
+	script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=ba63d442ec8e460a727e5030c9e0436b&autoload=false&libraries=services,clusterer,drawing`;
+	document.head.appendChild(script);
 
-		script.onload = () => {
-			window.kakao.maps.load(() => {
-				setIsLoading(false);
-			});
-		};
+	script.onload = () => {
+		window.kakao.maps.load(() => {
+			setIsLoading(false);
+			GetBusInfoAPI.getBusInfoJson().then((res) => setBusStopDataList)
+			GetCCTVInfoAPI.getCCTVInfoJson().then((res) => setCctvDataList)
+			GetLightInfoAPI.getLightInfoJson().then((res) => setLightDataList)
+		});
+	};
+	
   }, []);
 	
 	const handleConChange = (e : React.ChangeEvent<HTMLInputElement>, idx: number) => {
@@ -54,7 +70,11 @@ function App() {
 
   return (
     <div className="App">
-		<KakaoMapComponent />
+		<KakaoMapComponent
+			busStopDataList={busStopDataList}
+			cctvDataList={cctvDataList}
+			lightDataList={lightDataList}
+		/>
 		<div id="containerBox">
 			<Pentagon con={1} safety={2} res={3} tra={4} play={5} />
 			<div id="centerContainer">
@@ -65,9 +85,9 @@ function App() {
 						</div>
 						<div className="checkBoxInside">
 						{conList.map((con, idx) => (
-							<div>
+							<div key={idx}>
 								<div>{con}</div>
-								<input key={idx}
+								<input
 									id="Con1"
 									name="RangeBox"
 									type="range" value={conArr[idx]} min={0} max={200}
@@ -85,9 +105,9 @@ function App() {
 						</div>
 						<div className="checkBoxInside">
 						{resList.map((res, idx) => (
-							<div>
+							<div key={idx}>
 								<div>{res}</div>
-								<input key={idx}
+								<input
 									id="Con1"
 									name="RangeBox"
 									type="range" value={resArr[idx]} min={0} max={200}
@@ -105,9 +125,9 @@ function App() {
 						</div>
 						<div className="checkBoxInside">
 						{playList.map((play, idx) => (
-							<div>
+							<div key={idx}>
 								<div>{play}</div>
-								<input key={idx}
+								<input
 									id="Con1"
 									name="RangeBox"
 									type="range" value={playArr[idx]} min={0} max={200}
