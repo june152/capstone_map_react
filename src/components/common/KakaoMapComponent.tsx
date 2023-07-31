@@ -37,28 +37,40 @@ const KakaoMapComponent = () => {
         const circle_100 = new window.kakao.maps.Circle({
             radius: 100, // 미터 단위의 원의 반지름입니다
             strokeWeight: 1, // 선의 두께입니다
-            strokeColor: '#75B8FA', // 선의 색깔입니다
+            strokeColor: '#', // 선의 색깔입니다
             strokeOpacity: 0.5, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
             strokeStyle: 'solid', // 선의 스타일 입니다
-            fillColor: '#CFE7FF', // 채우기 색깔입니다
-            fillOpacity: 0.5, // 채우기 불투명도 입니다
+            fillColor: '#3588F3', // 채우기 색깔입니다
+            fillOpacity: 0.1, // 채우기 불투명도 입니다
             position: map.getCenter()
-        });
+        })
         
         const circle_200 = new window.kakao.maps.Circle({
             radius: 200, // 미터 단위의 원의 반지름입니다
             strokeWeight: 1, // 선의 두께입니다
-            strokeColor: '#123456', // 선의 색깔입니다
+            strokeColor: '#', // 선의 색깔입니다
             strokeOpacity: 0.5, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
             strokeStyle: 'solid', // 선의 스타일 입니다
-            fillColor: '#654321', // 채우기 색깔입니다
-            fillOpacity: 0.3, // 채우기 불투명도 입니다
+            fillColor: '#C08035', // 채우기 색깔입니다
+            fillOpacity: 0.1, // 채우기 불투명도 입니다
+            position: map.getCenter()
+        })
+
+        const circle_500 = new window.kakao.maps.Circle({
+            radius: 500, // 미터 단위의 원의 반지름입니다
+            strokeWeight: 1, // 선의 두께입니다
+            strokeColor: '#', // 선의 색깔입니다
+            strokeOpacity: 0.5, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+            strokeStyle: 'solid', // 선의 스타일 입니다
+            fillColor: '#295321', // 채우기 색깔입니다
+            fillOpacity: 0.1, // 채우기 불투명도 입니다
             position: map.getCenter()
         });
 
         // 지도에 마커를 표시합니다
-		circle_100.setMap(map);
-		circle_200.setMap(map);
+		circle_100.setMap(map)
+        circle_200.setMap(map)
+        circle_500.setMap(map)
         
         // 지도 클릭 이벤트 핸들러 등록
 		window.kakao.maps.event.addListener(map, "click", (mouseEvent: any) => {
@@ -67,6 +79,7 @@ const KakaoMapComponent = () => {
             setLat(clickedLatLng.getLat());
             circle_100.setPosition(clickedLatLng);
             circle_200.setPosition(clickedLatLng);
+            circle_500.setPosition(clickedLatLng);
 			console.log(
 				"클릭한 위치의 좌표:",
 				clickedLatLng.getLat(),
@@ -77,8 +90,7 @@ const KakaoMapComponent = () => {
     }, [])
 
     return (
-        <div id='map' style={{width: "100%", height: "60vh"}}>
-        </div>
+        <div id='map'></div>
     );
 };
 

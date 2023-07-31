@@ -15,29 +15,47 @@ ChartJS.register(ArcElement, Tooltip, Legend, RadialLinearScale, BarElement, Cat
 const Pentagon = ({con, safety, res, tra, play} : PentagonProps) => {
 
     return (
-        <div className='graph_area'>
+        <div className='chartContainer'>
             <Radar
-                style={{ width: 250, height: 250 }}
+                style={{ width: 320, height: 320 }}
+                id='mtChart'
                 data={{
                     labels: ['편의', '안전', '먹거리', '교통성', '놀거리'],
                     datasets: [
                         {
+                            label: '점수',
                             data: [con, safety, res, tra, play],
-                            // backgroundColor: ['#ff6384','#ff9f40','#ffcd56','#4bc0c0', '#36a2eb'],
-                            // backgroundColor: '#ff9f40',
-                            borderColor: ['#ff9f40']
+                            backgroundColor: 'rgba(168, 100, 255, 0.3)',
+                            // borderColor: ['#ff9f40'],
                         }
                     ]
                 }}
                 options={{
                     maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 16,
+                                    family: `'Noto Serif KR', serif`,
+                                }
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 15,
+                                    family: `'Noto Serif KR', serif`,
+                                }
+                            }
+                        }
+                    },
                     plugins: {
                         legend: {
                             position: "center",
                             labels: {
                                 color: 'black',
                             }
-                        }
+                        },
                     }
                 }}
             />

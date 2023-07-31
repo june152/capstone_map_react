@@ -1,0 +1,123 @@
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+#map {
+  height: 60vh;
+  width: 100%;
+  display: flex;
+}
+
+#containerBox {
+  padding: 1%;
+  height: 33%;
+  display: flex;
+  align-items: center;
+}
+
+#chartContainer {
+  margin-top: -5%;
+  height: 20vh;
+  width: 30vw;
+  display: inline;
+  margin-right: 3%;
+  margin-left: -10%;
+}
+
+#centerContainer {
+  display: flex;
+  width: 45%;
+  justify-content: space-evenly;
+}
+
+#scoreContainer {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  flex-direction: column;
+  padding: 0%;
+}
+
+.scoreBox {
+  display: flex;
+  text-align: right;
+  font-size: 1.2em;
+  font-family: "Noto Serif KR", serif;
+  font-weight: bolder;
+  margin-left: 5%;
+}
+
+.scoreIndex {
+  display: flex;
+  word-break: keep-all;
+  justify-content: space-around;
+}
+
+.scoreIndex button {
+  font-family: "Noto Serif KR", serif;
+  font-size: 1.2em;
+  font-weight: bolder;
+  background-color: rgba(250, 227, 153, 0.3);
+  border-radius: 10px;
+  border: 0px;
+}
+
+button:hover {
+  background-color: rgba(250, 144, 144, 0.733);
+}
+
+#infobox {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  width: 35%;
+  height: auto;
+  font-family: "Noto Serif KR", serif;
+  font-size: 1.3em;
+  font-weight: bolder;
+  margin-left: 2%;
+}
+#logo {
+  display: flex;
+  align-self: flex-end;
+  max-width: 3.5%;
+}
+
+span {
+  display: inline;
+  font-size: 1.2em;
+  font-weight: bolder;
+  text-align: center;
+}
+
+#checkboxContainer {
+  font-family: "Noto Serif KR", serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.checkBoxInside {
+  display: flex;
+  justify-content: center;
+  margin: 1%;
+  border: 0.3em rgba(243, 153, 69, 0.151) dashed;
+  border-radius: 10px;
+}
+.checkBoxInside div {
+  margin: 0.1%;
+  font-size: 0.95em;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+}
+
+input[type="range"] {
+  width: 70%;
+}
