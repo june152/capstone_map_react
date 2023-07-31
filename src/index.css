@@ -11,3 +11,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.graph_area {
+  margin-top: 30px;
+  position: relative;
+  width: 40%;
+  height: 40%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.graph_area canvas {
+  position: relative;
+}
