@@ -114,6 +114,49 @@ const KakaoMapComponent = ({
             Math.sin(dLon / 2)
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
         const d = R * c // Distance in km
+
+        return 1000*d; // retrun
+    }
+
+    const count_BUSSTOP_CCTV_LIGHT = (mouse_lat: number, mouse_long: number) => {
+        let count_BCL = new Array()
+        let i = 2
+        let distance = 0
+        let bus_index = 0   // 버스 정류장의 개수를 저장할 변수
+        let cctv_index = 0  // CCTV 개수를 저장할 변수
+        
+        busStopDataList.forEach((busData) => {
+            distance = getDistanceFromLatLonInKm(busData.LATITUDE, busData.LONGITUDE, mouse_lat, mouse_long)
+            if (distance <= 500) {
+                bus_index++
+                count_BCL[i] = distance
+                i++
+            }
+        })
+
+        cctvDataList.forEach((cctvData) => {
+            distance = getDistanceFromLatLonInKm(cctvData.LATITUDE, cctvData.LONGITUDE, mouse_lat, mouse_long)
+            if (distance <= 250) {
+                cctv_index++
+                count_BCL[i] = distance
+                i++
+            }
+        })
+
+        lightDataList.forEach((lightData) => {
+            distance = getDistanceFromLatLonInKm(lightData.LATITUDE, lightData.LONGITUDE, mouse_lat, mouse_long)
+            if (distance <= 100) {
+                count_BCL[i] = distance
+                i++
+            }
+        })
+
+        count_BCL[0] = bus_index
+        count_BCL[1] = cctv_index
+        //console.log(count_BCL)
+
+        return count_BCL
+
     }
 
     return (
