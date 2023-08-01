@@ -17,15 +17,6 @@ const ConComponent = ({ contentNumber, handleInitInfo, conArray, pubInfo, resArr
         switch (contentNumber) {
             case 0:
                 setComment("편의는 주변의 생활 서비스 관련 가게들을 고려한 점수입니다.")
-                if (!conArray) {
-                    setContentText("지도를 클릭해주세요.")
-                } else {
-                    if(!bclArray) return
-                    let str = "주변에 CCTV가 " + bclArray[1] + "개 있습니다\n" +
-                    "보안등이 " + (bclArray.length-bclArray[0]-bclArray[1]-2) + "개 있습니다\n" +
-                    "너무 가까운 술집이 " + pubInfo[1] + "개 있습니다"
-                    setContentText(str)
-                }
                 break
             case 1:
                 setComment("안전은 주변의 CCTV와 술집을 고려한 점수입니다.\n가까운 곳에 술집이 있으면 점수가 내려갑니다.")
@@ -64,7 +55,14 @@ const ConComponent = ({ contentNumber, handleInitInfo, conArray, pubInfo, resArr
                 setContentText("")
                 break
         }
-
+        if (!(conArray && pubInfo && resArray && playArray && bclArray)) {
+            setContentText("지도를 클릭해주세요.")
+        } else {
+            let str = "주변에 CCTV가 " + bclArray[1] + "개 있습니다\n" +
+            "보안등이 " + (bclArray.length-bclArray[0]-bclArray[1]-2) + "개 있습니다\n" +
+            "너무 가까운 술집이 " + pubInfo[1] + "개 있습니다"
+            setContentText(str)
+        }
     }, [contentNumber, conArray, pubInfo, resArray, playArray, bclArray])
 
     
