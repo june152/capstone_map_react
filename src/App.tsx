@@ -19,6 +19,7 @@ function App() {
 	const [conArr, setConArr] = useState([100, 100, 100, 100, 100, 100, 100, 100, 100])
 	const [resArr, setResArr] = useState([100, 100, 100, 100, 100, 100])
 	const [playArr, setPlayArr] = useState([100, 100, 100, 100, 100, 100])
+	const [coefArray, setCoefArray] = useState([...conArr, ...resArr, ...playArr])
 	//버스정류장 데이터
 	const [busStopDataList, setBusStopDataList] = useState([] as BusStopVO[])
 	//CCTV 데이터
@@ -80,6 +81,7 @@ function App() {
 		let tempArr = conArr
 		tempArr[idx] = val
 		setConArr([...tempArr])
+		setCoefArray([...tempArr, ...resArr, ...playArr])
 	}
 	
 	const handleResChange = (e : React.ChangeEvent<HTMLInputElement>, idx: number) => {
@@ -87,6 +89,7 @@ function App() {
 		let tempArr = resArr
 		tempArr[idx] = val
 		setResArr([...tempArr])
+		setCoefArray([...conArr, ...tempArr, ...playArr])
 	}
 	
 	const handlePlayChange = (e : React.ChangeEvent<HTMLInputElement>, idx: number) => {
@@ -94,6 +97,7 @@ function App() {
 		let tempArr = playArr
 		tempArr[idx] = val
 		setPlayArr([...tempArr])
+		setCoefArray([...conArr, ...resArr, ...tempArr])
 	}
 
 	const handleInitInfo = () => {
@@ -164,7 +168,7 @@ function App() {
 			lightDataList={lightDataList}
 			handleScore={handleScore}
 			coefCountPlus={coefCountPlus}
-			coefArray={[...conArr, ...resArr, ...playArr]}
+			coefArray={coefArray}
 			getCoefCount={getCoefCount}
 			setConData={setConData}
 			setPubData={setPubData}

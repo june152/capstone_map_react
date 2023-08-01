@@ -10,10 +10,12 @@ namespace FindPlace {
             let near_point = coef / threshold
             score[0] = 0
             score[1] = 0
-
+            console.log("keyword : ", keyword)
+            console.log("coef_a : ", coef_a)
             coef_a /= 100
             near_point *= coef_a
             coef *= coef_a
+            console.log("coef : ", coef)
 
             const callback = (result:any, status:string, pagination:any) => {
                 if(status === 'ZERO_RESULT') resolve(score)

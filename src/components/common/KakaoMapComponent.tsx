@@ -22,10 +22,13 @@ interface KakaoMapComponentProps {
 const KakaoMapComponent = ({
     busStopDataList, cctvDataList, lightDataList, handleScore, coefCountPlus, coefArray, getCoefCount, setConData, setPubData, setResData, setPlayData, setBclData
 } : KakaoMapComponentProps) => {
-    const [mapState, setMapState] = useState<any>();
-    const [myLatLng, setMyLatLng] = useState();
-    const [lat, setLat] = useState<number>();
-    const [lng, setLng] = useState<number>();
+    const [mapState, setMapState] = useState<any>()
+    const [myLatLng, setMyLatLng] = useState()
+    const [clickLatLng, setClickLatLng] = useState()
+    const [lat, setLat] = useState<number>()
+    const [lng, setLng] = useState<number>()
+    const [cLat, setCLat] = useState<number>()
+    const [cLng, setCLng] = useState<number>()
 
     const coefCountUp = (init?: number) => {
         coefCountPlus()
@@ -37,7 +40,7 @@ const KakaoMapComponent = ({
     useEffect(() => {
         const container = document.getElementById("map");
         const options = {
-            center: new window.kakao.maps.LatLng(35.17690999613079, 126.90610797027583), // 지도의 중심좌표
+            center: new window.kakao.maps.LatLng(cLat ?? 35.17690999613079, cLng ?? 126.90610797027583), // 지도의 중심좌표
             level: 5 // 지도의 확대 레벨
         };
         const map = new window.kakao.maps.Map(container, options);
@@ -47,13 +50,20 @@ const KakaoMapComponent = ({
                 (position) => {
                     const { latitude, longitude } = position.coords;
                     // 현재 위치 좌표 생성
-					console.log("현재위치 좌표", latitude, longitude);
+                    console.log("현재위치 좌표", latitude, longitude);
 					const currentLatLng = new window.kakao.maps.LatLng(
 						latitude,
 						longitude
-					);
+                    );
+                    if (!cLat) {
+                        setCLat(currentLatLng.getLat())
+                        setCLng(currentLatLng.getLng()) 
+                    }
+                    
                     setMyLatLng(currentLatLng);
-                    map.setCenter(currentLatLng)
+                    if (!cLat) {
+                        map.setCenter(currentLatLng)
+                    }
                 },
 				(error) => {
 					console.error("Error retrieving location : ", error);
@@ -103,11 +113,55 @@ const KakaoMapComponent = ({
         
         let bus_cctv_Array = new Array()    // 버스와 cctv 정보 저장할 배열
         let tra: number
-        let safety:number
+        let safety: number
+        
+        if (clickLatLng) {
+            circle_100.setPosition(clickLatLng);
+            circle_200.setPosition(clickLatLng);
+            circle_500.setPosition(clickLatLng);
+
+            bus_cctv_Array = count_BUSSTOP_CCTV_LIGHT(lat!, lng!)
+            setBclData(bus_cctv_Array)
+            tra = traScoreCalc(bus_cctv_Array)
+            safety = safetyScoreCalc(bus_cctv_Array)
+            
+            let conTemp = 0
+            let resTemp = 0
+            let playTemp = 0
+            let sum = tra
+
+            ConArrSetting(new Array(), clickLatLng).then((res) => {
+                for (const key of res) conTemp += key[0]
+                sum += makeRange(conTemp)
+                setConData(res)
+            })
+            ResArrSetting(new Array(), clickLatLng).then((res) => {
+                for (const key of res) resTemp += key[0]
+                sum += makeRange(resTemp)
+                setResData(res)
+            })
+            PlayArrSetting(new Array(), clickLatLng).then((res) => {
+                for (const key of res) playTemp += key[0]
+                sum += makeRange(playTemp)
+                setPlayData(res)
+            })
+
+            PubSetting(clickLatLng).then((res) => {
+                safety = makeRange(safety - res[0])
+                sum += safety
+                setPubData(res)
+            })
+
+            setTimeout(() => {
+                handleScore(makeRange(conTemp), safety, makeRange(resTemp), tra, makeRange(playTemp), Number(sum.toFixed(1)))
+            }, 1000)
+        }
 
         // 지도 클릭 이벤트 핸들러 등록
 		window.kakao.maps.event.addListener(map, "click", (mouseEvent: any) => {
-			const clickedLatLng = mouseEvent.latLng;
+            const clickedLatLng = mouseEvent.latLng;
+            console.log("clickedLatLng : ", clickedLatLng)
+            setClickLatLng(clickedLatLng)
 			setLng(clickedLatLng.getLng());
             setLat(clickedLatLng.getLat());
             circle_100.setPosition(clickedLatLng);
@@ -128,6 +182,7 @@ const KakaoMapComponent = ({
             let resTemp = 0
             let playTemp = 0
             let sum = tra
+            console.log("클릭 시 coefArr : ", coefArray)
             ConArrSetting(new Array(), clickedLatLng).then((res) => {
                 for (const key of res) conTemp += key[0]
                 sum += makeRange(conTemp)
@@ -154,7 +209,13 @@ const KakaoMapComponent = ({
                 handleScore(makeRange(conTemp), safety, makeRange(resTemp), tra, makeRange(playTemp), Number(sum.toFixed(1)))
             }, 1000)
         });
-    }, [])
+
+        window.kakao.maps.event.addListener(map, "dragend", () => {
+            const center = map.getCenter()
+            setCLat(center.getLat())
+            setCLng(center.getLng()) 
+        })
+    }, [coefArray])
 
     const getDistanceFromLatLonInKm = (lat1: number, lng1: number, lat2: number, lng2: number) => {
         const deg2rad = (deg: number) => {
@@ -164,9 +225,9 @@ const KakaoMapComponent = ({
         const dLat = deg2rad(lat2 - lat1)
         const dLon = deg2rad(lng2 - lng1)
         const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) *
-          Math.cos(deg2rad(lat2)) *
-          Math.sin(dLon / 2) *
+            Math.cos(deg2rad(lat1)) *
+            Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon / 2) *
             Math.sin(dLon / 2)
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
         const d = R * c // Distance in km
