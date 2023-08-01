@@ -8,11 +8,12 @@ interface PentagonProps {
     res: number,
     tra: number,
     play: number,
+    rgb?: string,
 }
 
 ChartJS.register(ArcElement, Tooltip, Legend, RadialLinearScale, BarElement, CategoryScale);
 
-const Pentagon = ({con, safety, res, tra, play} : PentagonProps) => {
+const Pentagon = ({con, safety, res, tra, play, rgb} : PentagonProps) => {
 
     return (
         <div className='chartContainer'>
@@ -25,7 +26,7 @@ const Pentagon = ({con, safety, res, tra, play} : PentagonProps) => {
                         {
                             label: '점수',
                             data: [con, safety, res, tra, play],
-                            backgroundColor: 'rgba(168, 100, 255, 0.3)',
+                            backgroundColor: rgb ?? 'rgba(168, 100, 255, 0.3)',
                             // borderColor: ['#ff9f40'],
                         }
                     ]
@@ -34,6 +35,8 @@ const Pentagon = ({con, safety, res, tra, play} : PentagonProps) => {
                     maintainAspectRatio: false,
                     scales: {
                         r: {
+                            min: 0,
+                            max: 5,
                             ticks: {
                                 stepSize: 1,
                                 font: {

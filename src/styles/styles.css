@@ -79,6 +79,11 @@ button:hover {
   font-weight: bolder;
   margin-left: 2%;
 }
+
+#infobox p {
+  white-space: pre-wrap;
+}
+
 #logo {
   display: flex;
   align-self: flex-end;
