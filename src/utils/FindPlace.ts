@@ -18,7 +18,6 @@ namespace FindPlace {
                 if(status === 'ZERO_RESULT') resolve(score)
                 if (status === window.kakao.maps.services.Status.OK) {
                     console.log(keyword, "계수 배수 : ", coef_a, "near_point : ", near_point, "coef : ", coef)
-
                     for (const key of result) {
                         if (key.distance <= threshold) {
                             score[0] += near_point

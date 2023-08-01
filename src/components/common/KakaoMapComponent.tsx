@@ -152,6 +152,13 @@ const KakaoMapComponent = ({
                 setPubData(res)
             })
 
+            let logo = document.getElementById("logo")
+
+            logo?.animate({
+                transform: ['rotate(0deg)', 'rotate(360deg)', 'rotate(0deg)'],
+                easing : [ 'ease-in', 'ease-out', 'ease-in']
+            }, 1000)
+
             setTimeout(() => {
                 handleScore(makeRange(conTemp), safety, makeRange(resTemp), tra, makeRange(playTemp), Number(sum.toFixed(1)))
             }, 1000)
@@ -160,7 +167,7 @@ const KakaoMapComponent = ({
         // 지도 클릭 이벤트 핸들러 등록
 		window.kakao.maps.event.addListener(map, "click", (mouseEvent: any) => {
             const clickedLatLng = mouseEvent.latLng;
-            console.log("clickedLatLng : ", clickedLatLng)
+            // console.log("clickedLatLng : ", clickedLatLng)
             setClickLatLng(clickedLatLng)
 			setLng(clickedLatLng.getLng());
             setLat(clickedLatLng.getLat());
@@ -182,7 +189,6 @@ const KakaoMapComponent = ({
             let resTemp = 0
             let playTemp = 0
             let sum = tra
-            console.log("클릭 시 coefArr : ", coefArray)
             ConArrSetting(new Array(), clickedLatLng).then((res) => {
                 for (const key of res) conTemp += key[0]
                 sum += makeRange(conTemp)
@@ -204,6 +210,13 @@ const KakaoMapComponent = ({
                 sum += safety
                 setPubData(res)
             })
+
+            let logo = document.getElementById("logo")
+
+            logo?.animate({
+                transform: ['rotate(0deg)', 'rotate(360deg)', 'rotate(0deg)'],
+                easing : [ 'ease-in', 'ease-out', 'ease-in']
+            }, 1000)
 
             setTimeout(() => {
                 handleScore(makeRange(conTemp), safety, makeRange(resTemp), tra, makeRange(playTemp), Number(sum.toFixed(1)))
