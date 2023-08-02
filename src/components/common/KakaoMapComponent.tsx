@@ -3,25 +3,16 @@ import BusStopVO from '../models/BusStopVO';
 import CCTVInfoVO from '../models/CCTVInfoVO';
 import LightInfoVO from '../models/LightInfoVO';
 import FindPlace from '../../utils/FindPlace';
+import PlaceVO from '../models/PlaceVO';
+import { ConItemList } from '../models/ConItemList';
+import { ResItemList } from '../models/ResItemList';
+import { PlayItemList } from '../models/PlayItemList';
 
 interface KakaoMapComponentProps {
-    busStopDataList: BusStopVO[],
-    cctvDataList: CCTVInfoVO[],
-    lightDataList: LightInfoVO[],
-    handleScore: Function,
-    coefCountPlus: Function,
-    coefArray: number[],
-    getCoefCount: Function,
-    setConData: Function,
-    setPubData: Function,
-    setResData: Function,
-    setPlayData: Function,
-    setBclData: Function,
+    
 }
 
-const KakaoMapComponent = ({
-    busStopDataList, cctvDataList, lightDataList, handleScore, coefCountPlus, coefArray, getCoefCount, setConData, setPubData, setResData, setPlayData, setBclData
-} : KakaoMapComponentProps) => {
+const KakaoMapComponent = ({} : KakaoMapComponentProps) => {
     const [mapState, setMapState] = useState<any>()
     const [myLatLng, setMyLatLng] = useState()
     const [clickLatLng, setClickLatLng] = useState()
@@ -29,13 +20,6 @@ const KakaoMapComponent = ({
     const [lng, setLng] = useState<number>()
     const [cLat, setCLat] = useState<number>()
     const [cLng, setCLng] = useState<number>()
-
-    const coefCountUp = (init?: number) => {
-        coefCountPlus()
-        if (init) {
-            coefCountPlus(init)
-        }
-    }
     
     useEffect(() => {
         const container = document.getElementById("map");
@@ -106,121 +90,34 @@ const KakaoMapComponent = ({
             position: map.getCenter()
         });
 
-        // 지도에 마커를 표시합니다
-		circle_100.setMap(map)
-        circle_200.setMap(map)
-        circle_500.setMap(map)
-        
-        let bus_cctv_Array = new Array()    // 버스와 cctv 정보 저장할 배열
-        let tra: number
-        let safety: number
-        
-        if (clickLatLng) {
-            circle_100.setPosition(clickLatLng);
-            circle_200.setPosition(clickLatLng);
-            circle_500.setPosition(clickLatLng);
-
-            bus_cctv_Array = count_BUSSTOP_CCTV_LIGHT(lat!, lng!)
-            setBclData(bus_cctv_Array)
-            tra = traScoreCalc(bus_cctv_Array)
-            safety = safetyScoreCalc(bus_cctv_Array)
-            
-            let conTemp = 0
-            let resTemp = 0
-            let playTemp = 0
-            let sum = tra
-
-            ConArrSetting(new Array(), clickLatLng).then((res) => {
-                for (const key of res) conTemp += key[0]
-                sum += makeRange(conTemp)
-                setConData(res)
-            })
-            ResArrSetting(new Array(), clickLatLng).then((res) => {
-                for (const key of res) resTemp += key[0]
-                sum += makeRange(resTemp)
-                setResData(res)
-            })
-            PlayArrSetting(new Array(), clickLatLng).then((res) => {
-                for (const key of res) playTemp += key[0]
-                sum += makeRange(playTemp)
-                setPlayData(res)
-            })
-
-            PubSetting(clickLatLng).then((res) => {
-                safety = makeRange(safety - res[0])
-                sum += safety
-                setPubData(res)
-            })
-
-            let logo = document.getElementById("logo")
-
-            logo?.animate({
-                transform: ['rotate(0deg)', 'rotate(360deg)', 'rotate(0deg)'],
-                easing : [ 'ease-in', 'ease-out', 'ease-in']
-            }, 1000)
-
-            setTimeout(() => {
-                handleScore(makeRange(conTemp), safety, makeRange(resTemp), tra, makeRange(playTemp), Number(sum.toFixed(1)))
-            }, 1000)
-        }
-
         // 지도 클릭 이벤트 핸들러 등록
-		window.kakao.maps.event.addListener(map, "click", (mouseEvent: any) => {
+        window.kakao.maps.event.addListener(map, "click", (mouseEvent: any) => {
+            // 지도에 마커를 표시합니다
+            circle_100.setMap(map)
+            circle_200.setMap(map)
+            circle_500.setMap(map)
             const clickedLatLng = mouseEvent.latLng;
-            // console.log("clickedLatLng : ", clickedLatLng)
             setClickLatLng(clickedLatLng)
 			setLng(clickedLatLng.getLng());
             setLat(clickedLatLng.getLat());
             circle_100.setPosition(clickedLatLng);
             circle_200.setPosition(clickedLatLng);
             circle_500.setPosition(clickedLatLng);
-			// console.log(
-			// 	"클릭한 위치의 좌표:",
-			// 	clickedLatLng.getLat(),
-			// 	clickedLatLng.getLng()
-            // );
-
-            bus_cctv_Array = count_BUSSTOP_CCTV_LIGHT(clickedLatLng.getLat(), clickedLatLng.getLng())
-            setBclData(bus_cctv_Array)
-            tra = traScoreCalc(bus_cctv_Array)
-            safety = safetyScoreCalc(bus_cctv_Array)
+            console.log("clickedLatLng  :: ", clickedLatLng)
             
-            let conTemp = 0
-            let resTemp = 0
-            let playTemp = 0
-            let sum = tra
-            ConArrSetting(new Array(), clickedLatLng).then((res) => {
-                for (const key of res) conTemp += key[0]
-                sum += makeRange(conTemp)
-                setConData(res)
+            ConArrSetting(clickedLatLng).then((res) => {
+                console.log("ConArrSetting : ", res)
             })
-            ResArrSetting(new Array(), clickedLatLng).then((res) => {
-                for (const key of res) resTemp += key[0]
-                sum += makeRange(resTemp)
-                setResData(res)
+            ResArrSetting(clickedLatLng).then((res) => {
+                console.log("ResArrSetting : ", res)
             })
-            PlayArrSetting(new Array(), clickedLatLng).then((res) => {
-                for (const key of res) playTemp += key[0]
-                sum += makeRange(playTemp)
-                setPlayData(res)
+            PlayArrSetting(clickedLatLng).then((res) => {
+                console.log("PlayArrSetting : ", res)
             })
 
             PubSetting(clickedLatLng).then((res) => {
-                safety = makeRange(safety - res[0])
-                sum += safety
-                setPubData(res)
+                console.log("술집 : ", res)
             })
-
-            let logo = document.getElementById("logo")
-
-            logo?.animate({
-                transform: ['rotate(0deg)', 'rotate(360deg)', 'rotate(0deg)'],
-                easing : [ 'ease-in', 'ease-out', 'ease-in']
-            }, 1000)
-
-            setTimeout(() => {
-                handleScore(makeRange(conTemp), safety, makeRange(resTemp), tra, makeRange(playTemp), Number(sum.toFixed(1)))
-            }, 1000)
         });
 
         window.kakao.maps.event.addListener(map, "dragend", () => {
@@ -228,157 +125,54 @@ const KakaoMapComponent = ({
             setCLat(center.getLat())
             setCLng(center.getLng()) 
         })
-    }, [coefArray])
+    }, [])
 
-    const getDistanceFromLatLonInKm = (lat1: number, lng1: number, lat2: number, lng2: number) => {
-        const deg2rad = (deg: number) => {
-            return deg * (Math.PI / 180)
+    const ConArrSetting = async (latlng: any) => {
+        let conResp: ConItemList = {
+            con1: await FindPlace.findPlace(latlng, '편의점', 200),
+            con2: await FindPlace.findPlace(latlng, '마트', 200),
+            con3: await FindPlace.findPlace(latlng, '세탁소', 200),
+            con4: await FindPlace.findPlace(latlng, '미용실', 200),
+            con5: await FindPlace.findPlace(latlng, '스터디카페', 250),
+            con6: await FindPlace.findPlace(latlng, '은행', 500),
+            con7: await FindPlace.findPlace(latlng, '병원', 500),
+            con8: await FindPlace.findPlace(latlng, '약국', 500),
+            con9: await FindPlace.findPlace(latlng, '헬스장', 250),
         }
-        const R = 6371  // Radius of the earth in km
-        const dLat = deg2rad(lat2 - lat1)
-        const dLon = deg2rad(lng2 - lng1)
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(deg2rad(lat1)) *
-            Math.cos(deg2rad(lat2)) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2)
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-        const d = R * c // Distance in km
-
-        return 1000*d; // retrun
-    }
-
-    const count_BUSSTOP_CCTV_LIGHT = (mouse_lat: number, mouse_long: number) => {
-        let count_BCL = new Array()
-        let i = 2
-        let distance = 0
-        let bus_index = 0   // 버스 정류장의 개수를 저장할 변수
-        let cctv_index = 0  // CCTV 개수를 저장할 변수
         
-        busStopDataList.forEach((busData) => {
-            distance = getDistanceFromLatLonInKm(busData.LATITUDE, busData.LONGITUDE, mouse_lat, mouse_long)
-            if (distance <= 500) {
-                bus_index++
-                count_BCL[i] = distance
-                i++
-            }
-        })
-
-        cctvDataList.forEach((cctvData) => {
-            distance = getDistanceFromLatLonInKm(cctvData.LATITUDE, cctvData.LONGITUDE, mouse_lat, mouse_long)
-            if (distance <= 250) {
-                cctv_index++
-                count_BCL[i] = distance
-                i++
-            }
-        })
-
-        lightDataList.forEach((lightData) => {
-            distance = getDistanceFromLatLonInKm(lightData.LATITUDE, lightData.LONGITUDE, mouse_lat, mouse_long)
-            if (distance <= 100) {
-                count_BCL[i] = distance
-                i++
-            }
-        })
-
-        count_BCL[0] = bus_index
-        count_BCL[1] = cctv_index
-        //console.log(count_BCL)
-        return count_BCL
+        return conResp
     }
 
-    const traScoreCalc = (bcArr: any[]) => {    // 교통성 점수 내는 함수
-        let score = 0
-        let i = 0
-        let idx = bcArr[0]
-
-        for (i = 1; i < idx; i++) {
-            if (bcArr[i] < 200) score += 0.5
-            else score += (100/bcArr[i])
+    const ResArrSetting = async (latlng: any) => {
+        let resResp: ResItemList = {
+            res1: await FindPlace.findPlace(latlng, '한식', 200),
+            res2: await FindPlace.findPlace(latlng, '양식', 200),
+            res3: await FindPlace.findPlace(latlng, '중식', 200),
+            res4: await FindPlace.findPlace(latlng, '일식', 200),
+            res5: await FindPlace.findPlace(latlng, '분식', 200),
+            res6: await FindPlace.findPlace(latlng, '패스트푸드', 200),
         }
 
-        if(score > 5) {   
-            score = 5
+        return resResp
+    }
+
+    const PlayArrSetting = async (latlng: any) => {
+        let playResp: PlayItemList = {
+            play1: await FindPlace.findPlace(latlng, 'PC방', 250),
+            play2: await FindPlace.findPlace(latlng, '오락실', 250),
+            play3: await FindPlace.findPlace(latlng, '만화카페', 250),
+            play4: await FindPlace.findPlace(latlng, '노래방', 250),
+            play5: await FindPlace.findPlace(latlng, '영화관', 1000),
+            play6: await FindPlace.findPlace(latlng, '호프', 250),
+            play7: await FindPlace.findPlace(latlng, '이자카야', 250),
+            play8: await FindPlace.findPlace(latlng, '칵테일바', 250)
         }
 
-        return Number(score.toFixed(1))
-    }
-
-    const safetyScoreCalc = (bcArr: any[]) => {
-        let score = 0
-        let i = 0
-        let idx = bcArr[0]    // 버스 정류장 개수
-        let idx2 = bcArr[1]   // CCTV
-
-        
-        for(i=2+idx; i<2+idx+idx2; i++) {   // CCTV 개수만큼
-            if(bcArr[i] < 100) score += 0.5;
-            else score += (50/bcArr[i]);
-        }
-        for(i; i<bcArr.length; i++) {
-            score += 0.05;
-        }
-        return score;
-    }
-
-    const makeRange = (x: number) => {
-        if(x > 5) x = 5
-        if (x < 0) x = 0
-        return Number(x.toFixed(1))
-    }
-
-    const ConArrSetting = async (ConArray: any[], latlng: any) => {
-        let count = 0
-        // console.log("count : ", count)
-        ConArray.push(await FindPlace.findPlace(latlng, '편의점', 200, 100, 20, coefArray[count++], coefCountUp))
-        ConArray.push(await FindPlace.findPlace(latlng, '마트', 200, 100, 20, coefArray[count++], coefCountUp))
-        ConArray.push(await FindPlace.findPlace(latlng, '세탁소', 200, 35, 7, coefArray[count++], coefCountUp))
-        ConArray.push(await FindPlace.findPlace(latlng, '미용실', 200, 20, 4, coefArray[count++], coefCountUp))
-        ConArray.push(await FindPlace.findPlace(latlng, '스터디카페', 250, 75, 15, coefArray[count++], coefCountUp))
-        ConArray.push(await FindPlace.findPlace(latlng, '은행', 500, 40, 8, coefArray[count++], coefCountUp))
-        ConArray.push(await FindPlace.findPlace(latlng, '병원', 500, 35, 7, coefArray[count++], coefCountUp))
-        ConArray.push(await FindPlace.findPlace(latlng, '약국', 500, 35, 7, coefArray[count++], coefCountUp))
-        ConArray.push(await FindPlace.findPlace(latlng, '헬스장', 250, 50, 10, coefArray[count++], coefCountUp))
-        // console.log("countAfter : ", count)
-        coefCountUp(count)
-
-        return ConArray
-    }
-
-    const ResArrSetting = async (ResArray: any[], latlng: any) => {
-        let count = 9
-        // console.log("count : ", count)
-        ResArray.push(await FindPlace.findPlace(latlng, '한식', 200, 50, 10, coefArray[count++], coefCountUp))
-        ResArray.push(await FindPlace.findPlace(latlng, '양식', 200, 50, 10, coefArray[count++], coefCountUp))
-        ResArray.push(await FindPlace.findPlace(latlng, '중식', 200, 50, 10, coefArray[count++], coefCountUp))
-        ResArray.push(await FindPlace.findPlace(latlng, '일식', 200, 50, 10, coefArray[count++], coefCountUp))
-        ResArray.push(await FindPlace.findPlace(latlng, '분식', 200, 50, 10, coefArray[count++], coefCountUp))
-        ResArray.push(await FindPlace.findPlace(latlng, '패스트푸드', 200, 50, 10, coefArray[count++], coefCountUp))
-        // console.log("countAfter : ", count)
-        coefCountUp(count)
-
-        return ResArray
-    }
-
-    const PlayArrSetting = async (PlayArray: any[], latlng: any) => {
-        let count = 15
-        // console.log("count : ", count)
-        PlayArray.push(await FindPlace.findPlace(latlng, 'PC방', 250, 50, 10, coefArray[count++], coefCountUp))
-        PlayArray.push(await FindPlace.findPlace(latlng, '오락실', 250, 50, 10, coefArray[count++], coefCountUp))
-        PlayArray.push(await FindPlace.findPlace(latlng, '만화카페', 250, 50, 10, coefArray[count++], coefCountUp))
-        PlayArray.push(await FindPlace.findPlace(latlng, '노래방', 250, 50, 10, coefArray[count++], coefCountUp))
-        PlayArray.push(await FindPlace.findPlace(latlng, '영화관', 1000, 50, 10, coefArray[count++], coefCountUp))
-        PlayArray.push(await FindPlace.findPlace(latlng, '호프', 250, 50, 10, coefArray[count], coefCountUp))
-        PlayArray.push(await FindPlace.findPlace(latlng, '이자카야', 250, 50, 10, coefArray[count], coefCountUp))
-        PlayArray.push(await FindPlace.findPlace(latlng, '칵테일바', 250, 50, 10, coefArray[count], coefCountUp))
-        // console.log("countAfter : ", count)
-        coefCountUp(count)
-
-        return PlayArray
+        return playResp
     }
 
     const PubSetting = async (latlng: any) => {
-        return await FindPlace.findPlace(latlng, '술집', 100, 15, 3, 100, coefCountUp); // Pub은 가장 나중에 호출할 것
+        return await FindPlace.findPlace(latlng, '술집', 250); // Pub은 가장 나중에 호출할 것
     }
 
     return (
