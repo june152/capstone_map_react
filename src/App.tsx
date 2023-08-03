@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import KakaoMapComponent from './components/common/KakaoMapComponent';
-import Logo from './assets/logo.png'
 import BottomBar from './components/common/BottomBar';
 import HeaderBar from './components/common/HeaderBar';
 import TitleImg from './assets/title.png'
@@ -8,9 +7,6 @@ import { ConItemList } from './components/models/ConItemList';
 import { ResItemList } from './components/models/ResItemList';
 import { PlayItemList } from './components/models/PlayItemList';
 import PlaceVO from './components/models/PlaceVO';
-import ConMarker from './assets/ic_marker04.png'
-import ResMarker from './assets/ic_marker01.png'
-import Playmarker from './assets/ic_marker03.png'
 
 export type TabMenu = 
 	| "Home"
@@ -20,6 +16,12 @@ export type TabMenu =
 export interface MarkerItemSet {
 	itemList: PlaceVO[],
 	markerList: any[],
+}
+
+export interface PositionData {
+    positionY: number,
+    height: number,
+    isPanelOpen: boolean,
 }
 
 function App() {
@@ -34,6 +36,21 @@ function App() {
 	const [resItemList, setResItemList] = useState<ResItemList>()
 	const [playItemList, setPlayItemList] = useState<PlayItemList>()
 	const [conMarkerSetList, setConMarkerSetList] = useState<MarkerItemSet[]>()
+	const [resMarkerSetList, setResMarkerSetList] = useState<MarkerItemSet[]>()
+	const [playMarkerSetList, setPlayMarkerSetList] = useState<MarkerItemSet[]>()
+
+	//하단 드래그바
+	const [isActive, setIsActive] = useState(false)
+    const [isPanelOpen, setIsPanelOpen] = useState(false)
+    const startPoint = useRef<PositionData>(
+        {
+            positionY: 0,
+            height: window.innerHeight - 160,
+            isPanelOpen: false,
+        }
+    )
+	const [panelHeight, setPanelHeight] = useState(startPoint.current.height)
+	const dragHandle = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
 		// 카카오 지도 API 스크립트 동적으로 로드
@@ -45,9 +62,86 @@ function App() {
 		script.onload = () => {
 			window.kakao.maps.load(() => {
 				setIsLoading(false)
+				
 			})
-		}	
+		}
 	}, []);
+
+	useEffect(() => {
+		//하단 드래그 이벤트
+		let changeValue = window.innerHeight - 160
+        const getPositionY = (e: MouseEvent | TouchEvent) => {
+            if (e instanceof TouchEvent) {
+                return e.touches[0].pageY
+			} else {
+				console.log("e.pageY : ", e.pageY)
+                return e.pageY
+            }
+		}
+
+        const onHandleStart = (e: MouseEvent | TouchEvent) => {
+            startPoint.current.positionY = getPositionY(e)
+            // console.log("start : ", getPositionY(e))
+            setIsActive(true)
+        }
+
+        const onHandleMove = (e: MouseEvent | TouchEvent) => {
+            const y = getPositionY(e)
+            const dY = startPoint.current.positionY - y
+            changeValue = startPoint.current.height - dY
+            
+            setPanelHeight(changeValue)
+        }
+
+        const onHandleEnd = (e: MouseEvent | TouchEvent) => {
+            setIsActive(false)
+            if (!startPoint.current.isPanelOpen) { //closed -> open
+                if (changeValue <= window.innerHeight / 2) {
+                    startPoint.current.isPanelOpen = true
+                    setIsPanelOpen(true)
+                    startPoint.current.height = 0
+                    setPanelHeight(0)
+                } else {
+                    startPoint.current.height = window.innerHeight - 160
+                    setPanelHeight(window.innerHeight - 160)
+                }
+            } else {    //open -> closed
+                if (changeValue >= window.innerHeight / 2) {
+                    startPoint.current.isPanelOpen = false
+                    setIsPanelOpen(false)
+                    startPoint.current.height = window.innerHeight - 160
+                    setPanelHeight(window.innerHeight - 160)
+                } else {
+                    startPoint.current.height = 0
+                    setPanelHeight(0)
+                }
+            }
+        }
+
+        const dragHandler = dragHandle.current
+		if (!dragHandler) {
+            return
+		}
+        dragHandler.addEventListener('mousedown', onHandleStart)
+        dragHandler.addEventListener('touchstart', onHandleStart)
+
+        window.addEventListener('mousemove', onHandleMove)
+        window.addEventListener('touchmove', onHandleMove)
+
+        window.addEventListener('mouseup', onHandleEnd)
+        window.addEventListener('touchend', onHandleEnd)
+
+        return () => {
+            dragHandler.removeEventListener('mousedown', onHandleStart)
+            dragHandler.removeEventListener('touchstart', onHandleStart)
+
+            window.removeEventListener('mousemove', onHandleMove)
+            window.removeEventListener('touchmove', onHandleMove)
+
+            window.removeEventListener('mouseup', onHandleEnd)
+            window.removeEventListener('touchend', onHandleEnd)
+        }
+	}, [isLoading])
 
 	const onTabChange = (tab: TabMenu) => {
 		setTab(tab)
@@ -59,9 +153,11 @@ function App() {
 	}
 	const handleResItemList = (resArr: ResItemList) => {
 		setResItemList(resArr)
+		setResMarker(resArr)
 	}
 	const handlePlayItemList = (playArr: PlayItemList) => {
 		setPlayItemList(playArr)
+		setPlayMarker(playArr)
 	}
 
 	const setConMarker = (conItemList?: ConItemList) => {
@@ -79,6 +175,36 @@ function App() {
 		tempArr.push(conItemList.con8 ? drawConMarker(conItemList.con8) : undefined)
 		tempArr.push(conItemList.con9 ? drawConMarker(conItemList.con9) : undefined)
 		setConMarkerSetList(tempArr as MarkerItemSet[])
+	}
+
+	const setResMarker = (resItemList?: ResItemList) => {
+		if (!resItemList) {
+			return
+		}
+		let tempArr = []
+		tempArr.push(resItemList.res1 ? drawConMarker(resItemList.res1) : undefined)
+		tempArr.push(resItemList.res2 ? drawConMarker(resItemList.res2) : undefined)
+		tempArr.push(resItemList.res3 ? drawConMarker(resItemList.res3) : undefined)
+		tempArr.push(resItemList.res4 ? drawConMarker(resItemList.res4) : undefined)
+		tempArr.push(resItemList.res5 ? drawConMarker(resItemList.res5) : undefined)
+		tempArr.push(resItemList.res6 ? drawConMarker(resItemList.res6) : undefined)
+		setResMarkerSetList(tempArr as MarkerItemSet[])
+	}
+
+	const setPlayMarker = (playItemList?: PlayItemList) => {
+		if (!playItemList) {
+			return
+		}
+		let tempArr = []
+		tempArr.push(playItemList.play1 ? drawConMarker(playItemList.play1) : undefined)
+		tempArr.push(playItemList.play2 ? drawConMarker(playItemList.play2) : undefined)
+		tempArr.push(playItemList.play3 ? drawConMarker(playItemList.play3) : undefined)
+		tempArr.push(playItemList.play4 ? drawConMarker(playItemList.play4) : undefined)
+		tempArr.push(playItemList.play5 ? drawConMarker(playItemList.play5) : undefined)
+		tempArr.push(playItemList.play6 ? drawConMarker(playItemList.play6) : undefined)
+		tempArr.push(playItemList.play7 ? drawConMarker(playItemList.play7) : undefined)
+		tempArr.push(playItemList.play8 ? drawConMarker(playItemList.play8) : undefined)
+		setPlayMarkerSetList(tempArr as MarkerItemSet[])
 	}
 
 	const drawConMarker = (conPlaceArr: PlaceVO[]): MarkerItemSet => {
@@ -102,25 +228,44 @@ function App() {
 	return (
 		<div id='wrapper' className='map_wrapper'>
 			<HeaderBar
-					element={
-						<img
-							src={TitleImg}
-							alt="근처를 부탁해!"
-							style={{ width: 200, height: 40, objectFit: 'contain', objectPosition: 'center' }}
-						/>
-					}
-				/>
+				element={
+					<img
+						src={TitleImg}
+						alt="근처를 부탁해!"
+						style={{ width: 200, height: 40, objectFit: 'contain', objectPosition: 'center' }}
+					/>
+				}
+			/>
 			<main>
 				<article className='container'>
-					<KakaoMapComponent
-						conItemList={conItemList}
-						resItemList={resItemList}
-						playItemList={playItemList}
-						handleConItemList={handleConItemList}
-						handleResItemList={handleResItemList}
-						handlePlayItemList={handlePlayItemList}
-						conMarkerSetList={conMarkerSetList}
-					/>
+					<div className='container_inner'>
+						{isLoading ? <div>Loading...</div> :
+						<KakaoMapComponent
+							conItemList={conItemList}
+							resItemList={resItemList}
+							playItemList={playItemList}
+							handleConItemList={handleConItemList}
+							handleResItemList={handleResItemList}
+							handlePlayItemList={handlePlayItemList}
+							conMarkerSetList={conMarkerSetList}
+							resMarkerSetList={resMarkerSetList}
+							playMarkerSetList={playMarkerSetList}
+						/>
+						}
+						<div className='mobile_menu_inner'>
+							<div className={`Panel js-panel is-draggable ${isActive ? "is-active" : isPanelOpen ? "is-open" : "is-closed"}`}
+								style={{top: isActive ? panelHeight : ""}}
+							>
+								<div className="mobile_title_box">
+									<div className="Panel-toggle js-draggable"
+										ref={dragHandle}
+									></div>
+								</div>
+								<div className="mobile_content_box">
+								</div>
+							</div>
+						</div>
+					</div>
 				</article>
 			</main>
 			<BottomBar tab={tab} onTabChange={onTabChange} />

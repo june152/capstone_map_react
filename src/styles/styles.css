@@ -59,8 +59,9 @@ select {
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden !important;
+  /* overflow-x: hidden;
+  overflow-y: auto; */
 }
 
 #wrapper.map_wrapper {
@@ -99,8 +100,44 @@ main .container>div {
   width: 100%;
 }
 
+/* 지도 */
+.container_inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+/* .container_inner .map_inner {
+  position: relative;
+  width: calc(100% - 389px);
+  height: 100%;
+  transition: all .3s;
+  background: url(../image/img_map.jpg) 50% 50% no-repeat;
+  background-size: cover;
+} */
+
+.container_inner .map_inner {
+  width: 100% !important;
+  height: calc(100vh - 80px) !important;
+}
+
+/* .container_inner.on .map_inner {
+  width: calc(100% - 780px);
+} */
+
+.container_inner .mobile_menu_inner {
+  display: block;
+  flex-direction: inherit;
+}
+
+.container_inner .mobile_menu_inner .content_layer {
+  display: inline-block;
+}
+
 #map {
-  height: 80vh;
+  height: 100vh;
   width: 100%;
   display: flex;
 }
@@ -131,119 +168,102 @@ main .container>div {
   color: #555;
 }
 
-#containerBox {
-  padding: 1%;
-  height: 33%;
-  display: flex;
-  align-items: center;
-}
-
-#chartContainer {
-  margin-top: -5%;
-  height: 20vh;
-  width: 30vw;
-  display: inline;
-  margin-right: 3%;
-  margin-left: -10%;
-}
-
-#centerContainer {
-  display: flex;
-  width: 45%;
-  justify-content: space-evenly;
-}
-
-#scoreContainer {
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
-  flex-direction: column;
-  padding: 0%;
-}
-
-.scoreBox {
-  display: flex;
-  text-align: right;
-  font-size: 1.2em;
-  font-family: "Noto Serif KR", serif;
-  font-weight: bolder;
-  margin-left: 5%;
-}
-
-.scoreIndex {
-  display: flex;
-  word-break: keep-all;
-  justify-content: space-around;
-}
-
-.scoreIndex button {
-  font-family: "Noto Serif KR", serif;
-  font-size: 1.2em;
-  font-weight: bolder;
-  background-color: rgba(250, 227, 153, 0.3);
-  border-radius: 10px;
-  border: 0px;
-}
-
 button:hover {
   background-color: rgba(250, 144, 144, 0.733);
 }
 
-#infobox {
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  width: 35%;
-  height: auto;
-  font-family: "Noto Serif KR", serif;
-  font-size: 1.3em;
-  font-weight: bolder;
-  margin-left: 2%;
+/* 바텀 */
+.Panel {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  transition: top .25s ease-out;
+  will-change: top;
+  z-index: 10;
+  overflow: hidden;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, .15);
 }
 
-#infobox p {
-  white-space: pre-wrap;
+.Panel-toggle {
+  position: relative;
+  width: 100%;
+  height: 30px;
 }
 
-#logo {
-  display: flex;
-  align-self: flex-end;
-  max-width: 3.5%;
+.Panel-toggle::before {
+  content: '';
+  display: block;
+  width: 10%;
+  height: 3px;
+  border-radius: 3px;
+  background-color: #ccc;
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
 }
 
-span {
-  display: inline;
-  font-size: 1.2em;
-  font-weight: bolder;
-  text-align: center;
+.is-active .Panel-toggle {
+  background: rgba(255, 255, 255, .75);
 }
 
-#checkboxContainer {
-  font-family: "Noto Serif KR", serif;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+.Panel.is-open {
+  top: 0;
 }
 
-.checkBoxInside {
-  display: flex;
-  justify-content: center;
-  margin: 1%;
-  border: 0.3em rgba(243, 153, 69, 0.151) dashed;
-  border-radius: 10px;
-}
-.checkBoxInside div {
-  margin: 0.1%;
-  font-size: 0.95em;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: center;
+.Panel.is-closed {
+  top: calc(100% - 80px);
 }
 
-input[type="range"] {
-  width: 70%;
+.Panel.is-active {
+  transition: none;
+}
+
+
+.admin .Panel .mobile_btn_write {
+  display: block;
+}
+
+.Panel .mobile_btn_write {
+  display: none;
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  z-index: 15;
+}
+
+.Panel.is-open .mobile_btn_write {
+  bottom: 30px;
+}
+
+.Panel.is-closed .mobile_btn_write {
+  bottom: 100px !important;
+}
+
+.Panel .mobile_btn_write a {
+  position: relative;
+  display: block;
+  padding: 10px 20px 10px 45px;
+  border-radius: 50px;
+  border: 1px solid #14ae67;
+  background-color: #fff;
+  font-size: 16px;
+  box-shadow: 0px 2px 4px rgb(0 0 0 / 10%);
+}
+
+.Panel .mobile_btn_write a::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  overflow: hidden;
+  background-size: cover;
+  display: block;
+  position: absolute;
+  top: 10px;
+  left: 20px;
 }

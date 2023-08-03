@@ -9,7 +9,7 @@ import { ResItemList } from '../models/ResItemList';
 import { PlayItemList } from '../models/PlayItemList';
 import ConMarker from '../../assets/ic_marker04.png'
 import ResMarker from '../../assets/ic_marker01.png'
-import Playmarker from '../../assets/ic_marker03.png'
+import PlayMarker from '../../assets/ic_marker03.png'
 import InfoWindow from './InfoWindow';
 import { MarkerItemSet } from '../../App';
 
@@ -21,6 +21,8 @@ interface KakaoMapComponentProps {
     handleResItemList: Function,
     handlePlayItemList: Function,
     conMarkerSetList?: MarkerItemSet[],
+    resMarkerSetList?: MarkerItemSet[],
+    playMarkerSetList?: MarkerItemSet[],
 }
 
 const KakaoMapComponent = ({
@@ -30,7 +32,10 @@ const KakaoMapComponent = ({
     handleConItemList,
     handleResItemList,
     handlePlayItemList,
-    conMarkerSetList}: KakaoMapComponentProps) => {
+    conMarkerSetList,
+    resMarkerSetList,
+    playMarkerSetList
+}: KakaoMapComponentProps) => {
     const [mapState, setMapState] = useState<any>()
     //현재 내 위치
     const [myLatLng, setMyLatLng] = useState()
@@ -48,7 +53,7 @@ const KakaoMapComponent = ({
         const container = document.getElementById("map");
         const options = {
             center: new window.kakao.maps.LatLng(cLat ?? 35.17690999613079, cLng ?? 126.90610797027583), // 지도의 중심좌표
-            level: cLevel ?? 5 // 지도의 확대 레벨
+            level: cLevel ?? 4 // 지도의 확대 레벨
         };
         const map = new window.kakao.maps.Map(container, options);
         setMapState(map);
@@ -109,7 +114,68 @@ const KakaoMapComponent = ({
                     }
                 }
             })
-            
+        }
+
+        if (resMarkerSetList && resMarkerSetList.length > 0) {
+            resMarkerSetList.map((resMarkerList) => {
+                if (resMarkerList && resMarkerList.markerList) {
+                    if (resMarkerList.markerList.length > 0) {
+                        resMarkerList.markerList.map((resMarker, idx) => {
+                            const infoWindow = new window.kakao.maps.InfoWindow({
+                                content: InfoWindow(resMarkerList.itemList[idx])
+                            })
+
+                            let imageSize = new window.kakao.maps.Size(16,24)
+                            let markerImg = new window.kakao.maps.MarkerImage(ResMarker, imageSize)
+                            resMarker.setImage(markerImg)
+                            resMarker.setMap(map)
+                            window.kakao.maps.event.addListener(resMarker, "click", () => {
+                                if(infoWindow.getMap()) {
+                                    infoWindow.close()
+                                } else {
+                                    infoWindow.open(map, resMarker)
+                                    let info_window = document.querySelectorAll('.info_window')
+                                    info_window.forEach((e:any) => {
+                                        e.parentElement.parentElement.style.border = "10px";
+                                        e.parentElement.parentElement.style.background = "unset";
+                                    })
+                                }
+                            })
+                        })
+                    }
+                }
+            })
+        }
+
+        if (playMarkerSetList && playMarkerSetList.length > 0) {
+            playMarkerSetList.map((playMarkerList) => {
+                if (playMarkerList && playMarkerList.markerList) {
+                    if (playMarkerList.markerList.length > 0) {
+                        playMarkerList.markerList.map((playMarker, idx) => {
+                            const infoWindow = new window.kakao.maps.InfoWindow({
+                                content: InfoWindow(playMarkerList.itemList[idx])
+                            })
+
+                            let imageSize = new window.kakao.maps.Size(16,24)
+                            let markerImg = new window.kakao.maps.MarkerImage(PlayMarker, imageSize)
+                            playMarker.setImage(markerImg)
+                            playMarker.setMap(map)
+                            window.kakao.maps.event.addListener(playMarker, "click", () => {
+                                if(infoWindow.getMap()) {
+                                    infoWindow.close()
+                                } else {
+                                    infoWindow.open(map, playMarker)
+                                    let info_window = document.querySelectorAll('.info_window')
+                                    info_window.forEach((e:any) => {
+                                        e.parentElement.parentElement.style.border = "10px";
+                                        e.parentElement.parentElement.style.background = "unset";
+                                    })
+                                }
+                            })
+                        })
+                    }
+                }
+            })
         }
 
         // 지도 클릭 이벤트 핸들러 등록
@@ -141,7 +207,7 @@ const KakaoMapComponent = ({
             setCLat(center.getLat())
             setCLng(center.getLng()) 
         })
-    }, [conMarkerSetList])
+    }, [conMarkerSetList,resMarkerSetList,playMarkerSetList])
 
     const ConArrSetting = async (latlng: any) => {
         let conResp: ConItemList = {
