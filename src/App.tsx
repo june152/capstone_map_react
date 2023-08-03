@@ -45,7 +45,7 @@ function App() {
     const startPoint = useRef<PositionData>(
         {
             positionY: 0,
-            height: window.innerHeight - 160,
+            height: window.innerHeight - 180,
             isPanelOpen: false,
         }
     )
@@ -69,7 +69,7 @@ function App() {
 
 	useEffect(() => {
 		//하단 드래그 이벤트
-		let changeValue = window.innerHeight - 160
+		let changeValue = window.innerHeight - 180
         const getPositionY = (e: MouseEvent | TouchEvent) => {
             if (e instanceof TouchEvent) {
                 return e.touches[0].pageY
@@ -102,15 +102,15 @@ function App() {
                     startPoint.current.height = 0
                     setPanelHeight(0)
                 } else {
-                    startPoint.current.height = window.innerHeight - 160
-                    setPanelHeight(window.innerHeight - 160)
+                    startPoint.current.height = window.innerHeight - 180
+                    setPanelHeight(window.innerHeight - 180)
                 }
             } else {    //open -> closed
                 if (changeValue >= window.innerHeight / 2) {
                     startPoint.current.isPanelOpen = false
                     setIsPanelOpen(false)
-                    startPoint.current.height = window.innerHeight - 160
-                    setPanelHeight(window.innerHeight - 160)
+                    startPoint.current.height = window.innerHeight - 180
+                    setPanelHeight(window.innerHeight - 180)
                 } else {
                     startPoint.current.height = 0
                     setPanelHeight(0)
