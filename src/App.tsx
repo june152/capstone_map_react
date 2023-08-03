@@ -256,6 +256,10 @@ function App() {
 									<div className="Panel-toggle js-draggable"
 										ref={dragHandle}
 									></div>
+									<div className="toggle_bottom">
+										<a href="javascript:void(0);" className="btn_filter">검색</a>
+										<p>목록 <b>1</b>개</p>
+									</div>
 								</div>
 								<div className="mobile_content_box">
 									<div className="list">

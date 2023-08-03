@@ -424,3 +424,41 @@ button:hover {
   height: 6px;
   background: rgba(94, 197, 86, .4);
 }
+
+.toggle_bottom {
+  width: calc(100% - 50px);
+  display: flex;
+  flex-direction: row;
+  margin: 0 auto;
+  padding-bottom: 20px;
+  align-items: center;
+}
+
+.toggle_bottom a {
+  position: relative;
+  display: inline-block;
+  padding: 0 15px 0 40px;
+  border-radius: 3px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 14px;
+  border: 1px solid #808080;
+}
+
+.toggle_bottom a::before {
+  content: '';
+  width: 15px;
+  height: 15px;
+  display: block;
+  position: absolute;
+  top: 8px;
+  left: 15px;
+  background: url(../assets/ic_filter.png) 50% 50% no-repeat;
+  background-size: cover;
+}
+
+.toggle_bottom p {
+  flex: 1 1 auto;
+  text-align: right;
+  font-size: 14px;
+}
