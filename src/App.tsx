@@ -74,7 +74,7 @@ function App() {
             if (e instanceof TouchEvent) {
                 return e.touches[0].pageY
 			} else {
-				console.log("e.pageY : ", e.pageY)
+				// console.log("e.pageY : ", e.pageY)
                 return e.pageY
             }
 		}
@@ -141,7 +141,7 @@ function App() {
             window.removeEventListener('mouseup', onHandleEnd)
             window.removeEventListener('touchend', onHandleEnd)
         }
-	}, [isLoading])
+	}, [])
 
 	const onTabChange = (tab: TabMenu) => {
 		setTab(tab)
@@ -221,10 +221,6 @@ function App() {
 		return {itemList: conPlaceArr, markerList: markerList} as MarkerItemSet
 	}
 
-	if (isLoading) {
-		return <div>Loading...</div>;
-	}
-
 	return (
 		<div id='wrapper' className='map_wrapper'>
 			<HeaderBar
@@ -262,6 +258,22 @@ function App() {
 									></div>
 								</div>
 								<div className="mobile_content_box">
+									<div className="list">
+										<ul>
+											<li>
+												<a>
+													<div className="list_table noimg">
+														<div className="txt">
+															<h5 className="txt_cut1">울 액희 소히 사랑행</h5>
+															<p className="address">우리집</p>
+															<p className="tel">전화번호</p>
+															<p className="tag"><span>#소히</span><span>#사랑</span></p>
+														</div>
+													</div>
+												</a>
+											</li>
+										</ul>
+									</div>
 								</div>
 							</div>
 						</div>

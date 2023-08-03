@@ -172,6 +172,61 @@ button:hover {
   background-color: rgba(250, 144, 144, 0.733);
 }
 
+/* 지도 리스트 */
+.mobile_content_box {
+  width: 100%;
+  height: calc(100% - 80px);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.mobile_content_box .list {
+  width: 100%;
+}
+
+.mobile_content_box .list ul {
+  width: 100%;
+}
+
+.mobile_content_box .list ul li,
+.mobile_content_box .list ul li a {
+  width: 100%;
+}
+
+.mobile_content_box .list ul li a .list_table {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.mobile_content_box .list ul li a .list_table .txt {
+  width: calc(100% - 100px);
+}
+
+.mobile_content_box .list ul li a .list_table.noimg .txt {
+  width: 100%;
+}
+
+.mobile_content_box .list ul li a {
+  display: inline-block;
+  padding: 18px 25px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #dbdee0;
+  background: #fff;
+  transition: all .2s;
+}
+
+.mobile_content_box .list ul li a:hover,
+.mobile_content_box .list ul li a.on {
+  background: #f7f9fa;
+}
+
+/* .mobile_content_box .list ul li a:hover img{transform:  translateY(-50%) scale(1.05);} */
+
+.list_table .list_table_txt h4 {
+  color: #0068c3;
+}
+
 /* 바텀 */
 .Panel {
   position: absolute;
@@ -266,4 +321,106 @@ button:hover {
   position: absolute;
   top: 10px;
   left: 20px;
+}
+
+/* 이미지 */
+.list_table>.img {
+  width: 80px;
+  height: 80px;
+  border-radius: 3px;
+  margin-left: 20px;
+}
+
+.list_table .img_box {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  border: 1px solid #f5f6f7;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.list_table .img_box img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  margin: auto;
+}
+
+.list_table .img_box .number {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top-left-radius: 3px;
+  color: #fff;
+  font-size: 14px;
+  background-color: rgba(0, 0, 0, .6);
+}
+
+/* 글 */
+.list_table .txt {
+  position: relative;
+  width: calc(100% - 100px);
+}
+
+.list_table.noimg .txt {
+  width: 100%;
+}
+
+.list_table .txt h5 {
+  display: block;
+  width: 100%;
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 5px;
+}
+
+.list_table .txt p.address,
+.list_table .txt p.tel {
+  line-height: 1.2em;
+  position: relative;
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  color: #555;
+}
+
+.list_table .txt p.tag {
+  line-height: 1em;
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+
+.list_table .txt p.tag span {
+  position: relative;
+  font-size: 13px;
+}
+
+.list_table .txt p.tag span:not(:first-child) {
+  margin-left: 6px;
+}
+
+.list_table .txt p.tag span::before {
+  content: '';
+  display: block;
+  clear: both;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: rgba(94, 197, 86, .4);
 }

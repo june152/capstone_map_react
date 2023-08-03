@@ -221,7 +221,6 @@ const KakaoMapComponent = ({
             con8: await FindPlace.findPlace(latlng, '약국', 1000),
             con9: await FindPlace.findPlace(latlng, '헬스장', 250),
         }
-        console.log(conResp)
         
         return conResp
     }
