@@ -7,17 +7,40 @@ import PlaceVO from '../models/PlaceVO';
 import { ConItemList } from '../models/ConItemList';
 import { ResItemList } from '../models/ResItemList';
 import { PlayItemList } from '../models/PlayItemList';
+import ConMarker from '../../assets/ic_marker04.png'
+import ResMarker from '../../assets/ic_marker01.png'
+import Playmarker from '../../assets/ic_marker03.png'
+import InfoWindow from './InfoWindow';
+import { MarkerItemSet } from '../../App';
 
 interface KakaoMapComponentProps {
-    
+    conItemList?: ConItemList,
+    resItemList?: ResItemList,
+    playItemList?: PlayItemList,
+    handleConItemList: Function,
+    handleResItemList: Function,
+    handlePlayItemList: Function,
+    conMarkerSetList?: MarkerItemSet[],
 }
 
-const KakaoMapComponent = ({} : KakaoMapComponentProps) => {
+const KakaoMapComponent = ({
+    conItemList,
+    resItemList,
+    playItemList,
+    handleConItemList,
+    handleResItemList,
+    handlePlayItemList,
+    conMarkerSetList}: KakaoMapComponentProps) => {
     const [mapState, setMapState] = useState<any>()
+    //현재 내 위치
     const [myLatLng, setMyLatLng] = useState()
+    //클릭한 위치
     const [clickLatLng, setClickLatLng] = useState()
     const [lat, setLat] = useState<number>()
     const [lng, setLng] = useState<number>()
+    //현재 map level
+    const [cLevel, setCLevel] = useState<number>()
+    //클릭위치 끝
     const [cLat, setCLat] = useState<number>()
     const [cLng, setCLng] = useState<number>()
     
@@ -25,7 +48,7 @@ const KakaoMapComponent = ({} : KakaoMapComponentProps) => {
         const container = document.getElementById("map");
         const options = {
             center: new window.kakao.maps.LatLng(cLat ?? 35.17690999613079, cLng ?? 126.90610797027583), // 지도의 중심좌표
-            level: 5 // 지도의 확대 레벨
+            level: cLevel ?? 5 // 지도의 확대 레벨
         };
         const map = new window.kakao.maps.Map(container, options);
         setMapState(map);
@@ -57,100 +80,94 @@ const KakaoMapComponent = ({} : KakaoMapComponentProps) => {
 			console.error("Geolocation is not supported.");
         }
 
-        const circle_100 = new window.kakao.maps.Circle({
-            radius: 100, // 미터 단위의 원의 반지름입니다
-            strokeWeight: 1, // 선의 두께입니다
-            strokeColor: '#', // 선의 색깔입니다
-            strokeOpacity: 0.5, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
-            strokeStyle: 'solid', // 선의 스타일 입니다
-            fillColor: '#3588F3', // 채우기 색깔입니다
-            fillOpacity: 0.1, // 채우기 불투명도 입니다
-            position: map.getCenter()
-        })
-        
-        const circle_200 = new window.kakao.maps.Circle({
-            radius: 200, // 미터 단위의 원의 반지름입니다
-            strokeWeight: 1, // 선의 두께입니다
-            strokeColor: '#', // 선의 색깔입니다
-            strokeOpacity: 0.5, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
-            strokeStyle: 'solid', // 선의 스타일 입니다
-            fillColor: '#C08035', // 채우기 색깔입니다
-            fillOpacity: 0.1, // 채우기 불투명도 입니다
-            position: map.getCenter()
-        })
+        if (conMarkerSetList && conMarkerSetList.length > 0) {
+            conMarkerSetList.map((conMarkerList) => {
+                if (conMarkerList && conMarkerList.markerList) {
+                    if (conMarkerList.markerList.length > 0) {
+                        conMarkerList.markerList.map((conMarker, idx) => {
+                            const infoWindow = new window.kakao.maps.InfoWindow({
+                                content: InfoWindow(conMarkerList.itemList[idx])
+                            })
 
-        const circle_500 = new window.kakao.maps.Circle({
-            radius: 500, // 미터 단위의 원의 반지름입니다
-            strokeWeight: 1, // 선의 두께입니다
-            strokeColor: '#', // 선의 색깔입니다
-            strokeOpacity: 0.5, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
-            strokeStyle: 'solid', // 선의 스타일 입니다
-            fillColor: '#295321', // 채우기 색깔입니다
-            fillOpacity: 0.1, // 채우기 불투명도 입니다
-            position: map.getCenter()
-        });
+                            let imageSize = new window.kakao.maps.Size(16,24)
+                            let markerImg = new window.kakao.maps.MarkerImage(ConMarker, imageSize)
+                            conMarker.setImage(markerImg)
+                            conMarker.setMap(map)
+                            window.kakao.maps.event.addListener(conMarker, "click", () => {
+                                if(infoWindow.getMap()) {
+                                    infoWindow.close()
+                                } else {
+                                    infoWindow.open(map, conMarker)
+                                    let info_window = document.querySelectorAll('.info_window')
+                                    info_window.forEach((e:any) => {
+                                        e.parentElement.parentElement.style.border = "10px";
+                                        e.parentElement.parentElement.style.background = "unset";
+                                    })
+                                }
+                            })
+                        })
+                    }
+                }
+            })
+            
+        }
 
         // 지도 클릭 이벤트 핸들러 등록
         window.kakao.maps.event.addListener(map, "click", (mouseEvent: any) => {
-            // 지도에 마커를 표시합니다
-            circle_100.setMap(map)
-            circle_200.setMap(map)
-            circle_500.setMap(map)
+            setCLevel(map.getLevel())
             const clickedLatLng = mouseEvent.latLng;
             setClickLatLng(clickedLatLng)
-			setLng(clickedLatLng.getLng());
             setLat(clickedLatLng.getLat());
-            circle_100.setPosition(clickedLatLng);
-            circle_200.setPosition(clickedLatLng);
-            circle_500.setPosition(clickedLatLng);
-            console.log("clickedLatLng  :: ", clickedLatLng)
+			setLng(clickedLatLng.getLng());         
+            // console.log("clickedLatLng  :: ", clickedLatLng)
             
             ConArrSetting(clickedLatLng).then((res) => {
-                console.log("ConArrSetting : ", res)
+                // console.log("ConArrSetting : ", res)
+                handleConItemList(res)
             })
             ResArrSetting(clickedLatLng).then((res) => {
-                console.log("ResArrSetting : ", res)
+                // console.log("ResArrSetting : ", res)
+                handleResItemList(res)
             })
             PlayArrSetting(clickedLatLng).then((res) => {
-                console.log("PlayArrSetting : ", res)
-            })
-
-            PubSetting(clickedLatLng).then((res) => {
-                console.log("술집 : ", res)
+                // console.log("PlayArrSetting : ", res)
+                handlePlayItemList(res)
             })
         });
 
         window.kakao.maps.event.addListener(map, "dragend", () => {
+            setCLevel(map.getLevel())
             const center = map.getCenter()
             setCLat(center.getLat())
             setCLng(center.getLng()) 
         })
-    }, [])
+    }, [conMarkerSetList])
 
     const ConArrSetting = async (latlng: any) => {
         let conResp: ConItemList = {
-            con1: await FindPlace.findPlace(latlng, '편의점', 200),
-            con2: await FindPlace.findPlace(latlng, '마트', 200),
-            con3: await FindPlace.findPlace(latlng, '세탁소', 200),
-            con4: await FindPlace.findPlace(latlng, '미용실', 200),
+            con1: await FindPlace.findPlace(latlng, '편의점', 250),
+            con2: await FindPlace.findPlace(latlng, '마트', 250),
+            con3: await FindPlace.findPlace(latlng, '세탁소', 250),
+            con4: await FindPlace.findPlace(latlng, '미용실', 250),
             con5: await FindPlace.findPlace(latlng, '스터디카페', 250),
             con6: await FindPlace.findPlace(latlng, '은행', 500),
-            con7: await FindPlace.findPlace(latlng, '병원', 500),
-            con8: await FindPlace.findPlace(latlng, '약국', 500),
+            con7: await FindPlace.findPlace(latlng, '병원', 1000),
+            con8: await FindPlace.findPlace(latlng, '약국', 1000),
             con9: await FindPlace.findPlace(latlng, '헬스장', 250),
         }
+        console.log(conResp)
         
         return conResp
     }
 
     const ResArrSetting = async (latlng: any) => {
         let resResp: ResItemList = {
-            res1: await FindPlace.findPlace(latlng, '한식', 200),
-            res2: await FindPlace.findPlace(latlng, '양식', 200),
-            res3: await FindPlace.findPlace(latlng, '중식', 200),
-            res4: await FindPlace.findPlace(latlng, '일식', 200),
-            res5: await FindPlace.findPlace(latlng, '분식', 200),
-            res6: await FindPlace.findPlace(latlng, '패스트푸드', 200),
+            res1: await FindPlace.findPlace(latlng, '한식', 250),
+            res2: await FindPlace.findPlace(latlng, '양식', 250),
+            res3: await FindPlace.findPlace(latlng, '중식', 250),
+            res4: await FindPlace.findPlace(latlng, '일식', 250),
+            res5: await FindPlace.findPlace(latlng, '분식', 250),
+            res6: await FindPlace.findPlace(latlng, '패스트푸드', 250),
         }
 
         return resResp
@@ -172,11 +189,11 @@ const KakaoMapComponent = ({} : KakaoMapComponentProps) => {
     }
 
     const PubSetting = async (latlng: any) => {
-        return await FindPlace.findPlace(latlng, '술집', 250); // Pub은 가장 나중에 호출할 것
+        return await FindPlace.findPlace(latlng, '술집', 250);
     }
 
     return (
-        <div id='map'></div>
+        <div id='map' className='map_inner'></div>
     );
 };
 

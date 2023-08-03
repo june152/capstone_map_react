@@ -3,6 +3,7 @@ export default class PlaceVO {
         public address_name: string,    //지번주소
         public category_group_code: string, //그룹코드
         public category_group_name: string, //그룹명
+        public category_name: string,   //카테고리명
         public distance: string,    //위치와의 거리
         public id: string,
         public phone: string,   //연락처
