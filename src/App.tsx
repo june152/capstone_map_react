@@ -7,6 +7,8 @@ import { ConItemList } from './components/models/ConItemList';
 import { ResItemList } from './components/models/ResItemList';
 import { PlayItemList } from './components/models/PlayItemList';
 import PlaceVO from './components/models/PlaceVO';
+import ContactDialog from './components/common/ContactDialog';
+import BottomPanel from './components/common/BottomPanel';
 
 export type TabMenu = 
 	| "Home"
@@ -26,9 +28,6 @@ export interface PositionData {
 
 function App() {
 	const [isLoading, setIsLoading] = useState(true);	//스크립트 로드 여부
-	const conList = ["편의점", "마트", "세탁소", "미용실", "스터디카페", "은행", "병원", "약국", "헬스장"]
-	const resList = ["한식", "양식", "중식", "일식", "분식", "패스트푸드"]
-	const playList = ["PC방", "오락실", "만화카페", "노래방", "영화관", "술집"]
 	//	tab state
 	const [tab, setTab] = useState<TabMenu>("Home")
 	//	default Data List
@@ -38,6 +37,34 @@ function App() {
 	const [conMarkerSetList, setConMarkerSetList] = useState<MarkerItemSet[]>()
 	const [resMarkerSetList, setResMarkerSetList] = useState<MarkerItemSet[]>()
 	const [playMarkerSetList, setPlayMarkerSetList] = useState<MarkerItemSet[]>()
+	//로딩창 모달
+	const [modalVisible, setModalVisible] = useState(false)
+	const [modalFade, setModalFade] = useState(false)
+	const handleModalToggle = (isVisible : boolean) => {
+		setModalVisible(isVisible)
+		setModalFade(false)
+	}
+	//Loading
+    const [conLoad, setConLoad] = useState(false)
+    const [resLoad, setResLoad] = useState(false)
+	const [playLoad, setPlayLoad] = useState(false)
+	const handelConLoad = (isLoad: boolean) => {
+		setConLoad(isLoad)
+	}
+	const handelResLoad = (isLoad: boolean) => {
+		setResLoad(isLoad)
+	}
+	const handelPlayLoad = (isLoad: boolean) => {
+		setPlayLoad(isLoad)
+	}
+
+	useEffect(() => {
+		if (conLoad || resLoad || playLoad) {
+			handleModalToggle(true)
+		} else {
+			setModalFade(true)
+		}
+	}, [conLoad, resLoad, playLoad])
 
 	//하단 드래그바
 	const [isActive, setIsActive] = useState(false)
@@ -51,6 +78,33 @@ function App() {
     )
 	const [panelHeight, setPanelHeight] = useState(startPoint.current.height)
 	const dragHandle = useRef<HTMLDivElement>(null)
+
+	//검색필터
+    const [cateConCheck, setCateConCheck] = useState(true)
+    const [cateResCheck, setCateResCheck] = useState(true)
+    const [catePlayCheck, setCatePlayCheck] = useState(true)
+    const [conListItem, setConListItem] = useState([true, true, true, true, true, true, true, true, true])
+    const [resListItem, setResListItem] = useState([true, true, true, true, true, true])
+    const [playListItem, setPlayListItem] = useState([true, true, true, true, true, true, true, true])
+
+    const handleConCheck = (checked: boolean) => {
+        setCateConCheck(checked)
+    }
+    const handleResCheck = (checked: boolean) => {
+        setCateResCheck(checked)
+    }
+    const handlePlayCheck = (checked: boolean) => {
+        setCatePlayCheck(checked)
+	}
+	const handleConListChange = (checkList: boolean[]) => {
+		setConListItem(checkList)
+	}
+	const handleResListChange = (checkList: boolean[]) => {
+		setResListItem(checkList)
+	}
+	const handlePlayListChange = (checkList: boolean[]) => {
+		setPlayListItem(checkList)
+	}
 
 	useEffect(() => {
 		// 카카오 지도 API 스크립트 동적으로 로드
@@ -235,7 +289,7 @@ function App() {
 			<main>
 				<article className='container'>
 					<div className='container_inner'>
-						{isLoading ? <div>Loading...</div> :
+						{isLoading ? <ContactDialog handleModalToggle={handleModalToggle} modalFade={modalFade} /> :
 						<KakaoMapComponent
 							conItemList={conItemList}
 							resItemList={resItemList}
@@ -246,45 +300,42 @@ function App() {
 							conMarkerSetList={conMarkerSetList}
 							resMarkerSetList={resMarkerSetList}
 							playMarkerSetList={playMarkerSetList}
+							handelConLoad={handelConLoad}
+							handelResLoad={handelResLoad}
+							handelPlayLoad={handelPlayLoad}
+
 						/>
 						}
-						<div className='mobile_menu_inner'>
-							<div className={`Panel js-panel is-draggable ${isActive ? "is-active" : isPanelOpen ? "is-open" : "is-closed"}`}
-								style={{top: isActive ? panelHeight : ""}}
-							>
-								<div className="mobile_title_box">
-									<div className="Panel-toggle js-draggable"
-										ref={dragHandle}
-									></div>
-									<div className="toggle_bottom">
-										<a href="javascript:void(0);" className="btn_filter">검색</a>
-										<p>목록 <b>1</b>개</p>
-									</div>
-								</div>
-								<div className="mobile_content_box">
-									<div className="list">
-										<ul>
-											<li>
-												<a>
-													<div className="list_table noimg">
-														<div className="txt">
-															<h5 className="txt_cut1">울 액희 소히 사랑행</h5>
-															<p className="address">우리집</p>
-															<p className="tel">전화번호</p>
-															<p className="tag"><span>#소히</span><span>#사랑</span></p>
-														</div>
-													</div>
-												</a>
-											</li>
-										</ul>
-									</div>
-								</div>
-							</div>
-						</div>
+						<BottomPanel
+							isActive={isActive}
+							isPanelOpen={isPanelOpen}
+							panelHeight={panelHeight}
+							dragHandle={dragHandle}
+							conItemList={conItemList}
+							resItemList={resItemList}
+							playItemList={playItemList}
+							cateConCheck={cateConCheck}
+							cateResCheck={cateResCheck}
+							catePlayCheck={catePlayCheck}
+							conListItem={conListItem}
+							resListItem={resListItem}
+							playListItem={playListItem}
+							handleConCheck={handleConCheck}
+							handleResCheck={handleResCheck}
+							handlePlayCheck={handlePlayCheck}
+							handleConListChange={handleConListChange}
+							handleResListChange={handleResListChange}
+							handlePlayListChange={handlePlayListChange}
+						/>
 					</div>
 				</article>
 			</main>
 			<BottomBar tab={tab} onTabChange={onTabChange} />
+			{
+				modalVisible && (
+				<ContactDialog handleModalToggle={handleModalToggle} modalFade={modalFade} />
+				)
+			}  
 		</div>
 	);
 }

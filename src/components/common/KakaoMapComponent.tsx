@@ -7,9 +7,9 @@ import PlaceVO from '../models/PlaceVO';
 import { ConItemList } from '../models/ConItemList';
 import { ResItemList } from '../models/ResItemList';
 import { PlayItemList } from '../models/PlayItemList';
-import ConMarker from '../../assets/ic_marker04.png'
-import ResMarker from '../../assets/ic_marker01.png'
-import PlayMarker from '../../assets/ic_marker03.png'
+import ConMarker from '../../assets/mk_10.png'
+import ResMarker from '../../assets/mk_1.png'
+import PlayMarker from '../../assets/mk_6.png'
 import InfoWindow from './InfoWindow';
 import { MarkerItemSet } from '../../App';
 
@@ -23,6 +23,9 @@ interface KakaoMapComponentProps {
     conMarkerSetList?: MarkerItemSet[],
     resMarkerSetList?: MarkerItemSet[],
     playMarkerSetList?: MarkerItemSet[],
+    handelConLoad: Function,
+    handelResLoad: Function,
+    handelPlayLoad: Function,
 }
 
 const KakaoMapComponent = ({
@@ -34,7 +37,10 @@ const KakaoMapComponent = ({
     handlePlayItemList,
     conMarkerSetList,
     resMarkerSetList,
-    playMarkerSetList
+    playMarkerSetList,
+    handelConLoad,
+    handelResLoad,
+    handelPlayLoad,
 }: KakaoMapComponentProps) => {
     const [mapState, setMapState] = useState<any>()
     //현재 내 위치
@@ -94,7 +100,7 @@ const KakaoMapComponent = ({
                                 content: InfoWindow(conMarkerList.itemList[idx])
                             })
 
-                            let imageSize = new window.kakao.maps.Size(16,24)
+                            let imageSize = new window.kakao.maps.Size(20,24)
                             let markerImg = new window.kakao.maps.MarkerImage(ConMarker, imageSize)
                             conMarker.setImage(markerImg)
                             conMarker.setMap(map)
@@ -125,7 +131,7 @@ const KakaoMapComponent = ({
                                 content: InfoWindow(resMarkerList.itemList[idx])
                             })
 
-                            let imageSize = new window.kakao.maps.Size(16,24)
+                            let imageSize = new window.kakao.maps.Size(20,24)
                             let markerImg = new window.kakao.maps.MarkerImage(ResMarker, imageSize)
                             resMarker.setImage(markerImg)
                             resMarker.setMap(map)
@@ -156,7 +162,7 @@ const KakaoMapComponent = ({
                                 content: InfoWindow(playMarkerList.itemList[idx])
                             })
 
-                            let imageSize = new window.kakao.maps.Size(16,24)
+                            let imageSize = new window.kakao.maps.Size(20,24)
                             let markerImg = new window.kakao.maps.MarkerImage(PlayMarker, imageSize)
                             playMarker.setImage(markerImg)
                             playMarker.setMap(map)
@@ -190,14 +196,17 @@ const KakaoMapComponent = ({
             ConArrSetting(clickedLatLng).then((res) => {
                 // console.log("ConArrSetting : ", res)
                 handleConItemList(res)
+                handelConLoad(false)
             })
             ResArrSetting(clickedLatLng).then((res) => {
                 // console.log("ResArrSetting : ", res)
                 handleResItemList(res)
+                handelResLoad(false)
             })
             PlayArrSetting(clickedLatLng).then((res) => {
                 // console.log("PlayArrSetting : ", res)
                 handlePlayItemList(res)
+                handelPlayLoad(false)
             })
         });
 
@@ -210,6 +219,7 @@ const KakaoMapComponent = ({
     }, [conMarkerSetList,resMarkerSetList,playMarkerSetList])
 
     const ConArrSetting = async (latlng: any) => {
+        handelConLoad(true)
         let conResp: ConItemList = {
             con1: await FindPlace.findPlace(latlng, '편의점', 250),
             con2: await FindPlace.findPlace(latlng, '마트', 250),
@@ -226,6 +236,7 @@ const KakaoMapComponent = ({
     }
 
     const ResArrSetting = async (latlng: any) => {
+        handelResLoad(true)
         let resResp: ResItemList = {
             res1: await FindPlace.findPlace(latlng, '한식', 250),
             res2: await FindPlace.findPlace(latlng, '양식', 250),
@@ -239,6 +250,7 @@ const KakaoMapComponent = ({
     }
 
     const PlayArrSetting = async (latlng: any) => {
+        handelPlayLoad(true)
         let playResp: PlayItemList = {
             play1: await FindPlace.findPlace(latlng, 'PC방', 250),
             play2: await FindPlace.findPlace(latlng, '오락실', 250),

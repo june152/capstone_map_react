@@ -10,7 +10,7 @@ export default class PlaceVO {
         public place_name: string,  //장소명
         public place_url: string,   //장소 url
         public road_address_name: string,   //도로명 주소
-        public x: string,   //lat
-        public y: string,   //lng
+        public x: string,   //lng
+        public y: string,   //lat
     ) {}
 }
