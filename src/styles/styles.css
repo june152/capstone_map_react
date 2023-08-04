@@ -768,8 +768,8 @@ button.close {
 }
 
 .filter_popup .white_box .popup_top .popup_con>div.category2 div p input[type="checkbox"]:checked {
-  border: 4px solid #5ec556;
-  background: url(../assets/ic_check.png) center no-repeat #5ec556;
+  border: 4px solid #5683c5;
+  background: url(../assets/ic_check.png) center no-repeat #5683c5;
 }
 
 .filter_popup .white_box .popup_top .popup_con>div.category2 div p label {

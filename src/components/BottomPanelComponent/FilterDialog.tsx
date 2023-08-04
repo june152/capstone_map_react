@@ -123,7 +123,7 @@ const FilterDialog = (
                         <form>
                             <div className="popup_top">
                                 <div className="popup_tit">
-                                    <h3>검색필터</h3>
+                                    <h3>검색필터 상세</h3>
                                     <a className="filter_popup_close"
                                         onClick={() => {handleCloseModal()}}
                                     ></a>
