@@ -251,6 +251,13 @@ const FilterDialog = (
                                             </div>
                                         </ul>
                                     </div>
+                                    <div className="keyword">
+                                        <p>검색어</p>
+                                        <input
+                                            type="text"
+                                            placeholder="검색어를 입력해주세요"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </form>

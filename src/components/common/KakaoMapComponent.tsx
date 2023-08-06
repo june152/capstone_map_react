@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import BusStopVO from '../models/BusStopVO';
-import CCTVInfoVO from '../models/CCTVInfoVO';
-import LightInfoVO from '../models/LightInfoVO';
 import FindPlace from '../../utils/FindPlace';
-import PlaceVO from '../models/PlaceVO';
 import { ConItemList } from '../models/ConItemList';
 import { ResItemList } from '../models/ResItemList';
 import { PlayItemList } from '../models/PlayItemList';
@@ -199,7 +195,7 @@ const KakaoMapComponent = ({
                 handelConLoad(false)
             })
             ResArrSetting(clickedLatLng).then((res) => {
-                // console.log("ResArrSetting : ", res)
+                console.log("ResArrSetting : ", res)
                 handleResItemList(res)
                 handelResLoad(false)
             })

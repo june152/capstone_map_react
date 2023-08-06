@@ -810,6 +810,15 @@ button.close {
   width: 20px;
 }
 
+.filter_popup .white_box .popup_top .popup_con input {
+  width: 100%;
+  border: 1px solid #dbdee0;
+  padding: 15px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+
 /* 팝업 컴포넌트 관련 */
 /* 체크박스 */
 .popup_con .listSelect label {
