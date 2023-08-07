@@ -13,6 +13,7 @@ interface BottomPanelProps {
     conItemList?: ConItemList,
     resItemList?: ResItemList,
     playItemList?: PlayItemList,
+    searchResult?: PlaceVO[],
     cateConCheck: boolean,
     cateResCheck: boolean,
     catePlayCheck: boolean,
@@ -25,6 +26,10 @@ interface BottomPanelProps {
     handleConListChange: Function,
     handleResListChange: Function,
     handlePlayListChange: Function,
+    searchKeyword: string,
+    handleKeywordInput: Function,
+    searchRange: number,
+    handleRangeChange: Function,
 }
 
 const BottomPanel = (
@@ -36,6 +41,7 @@ const BottomPanel = (
         conItemList,
         resItemList,
         playItemList,
+        searchResult,
         cateConCheck,
         cateResCheck,
         catePlayCheck,
@@ -48,6 +54,10 @@ const BottomPanel = (
         handleConListChange,
         handleResListChange,
         handlePlayListChange,
+        searchKeyword,
+        handleKeywordInput,
+        searchRange,
+        handleRangeChange,
     }
     :BottomPanelProps
 ) => {
@@ -63,7 +73,12 @@ const BottomPanel = (
     const [allPlaceList, setAllPlaceList] = useState([] as PlaceVO[])
 
     useEffect(() => {
-        let tempArr:PlaceVO[] = []
+        let tempArr: PlaceVO[] = []
+        if (searchResult) {
+            searchResult.map((result) => {
+                tempArr.push(result)
+            })
+        }
         if (conItemList) {
             if (conItemList.con1) {
                 conItemList.con1.map((con) => {
@@ -187,7 +202,7 @@ const BottomPanel = (
         }
         setAllPlaceList(tempArr)
 
-    }, [conItemList, resItemList, playItemList])
+    }, [conItemList, resItemList, playItemList, searchResult])
 
     return (
         <div className='mobile_menu_inner'>
@@ -212,8 +227,13 @@ const BottomPanel = (
                                     <a>
                                         <div className="list_table noimg">
                                             <div className="txt">
-                                                <h5 className="txt_cut1">{place.place_name}</h5>
-                                                <p className="address">{place.road_address_name}</p>
+                                                <h5 className="txt_cut1" onClick={(e: React.MouseEvent<HTMLHeadElement>) => {
+                                                    e.preventDefault()
+                                                    window.handleOpenWinFrame(place.place_url)
+                                                }
+                                                }>{place.place_name}</h5>
+                                                <p className="address">{`(도로명) ${place.road_address_name}`}</p>
+                                                <p className="address">{`(지번) ${place.address_name}`}</p>
                                                 <p className="tel">{place.phone === "" ? "연락처 없음" : place.phone}</p>
                                                 <p className="tag"><span>{place.category_name}</span></p>
                                             </div>
@@ -254,6 +274,10 @@ const BottomPanel = (
                     handleConListChange={handleConListChange}
                     handleResListChange={handleResListChange}
                     handlePlayListChange={handlePlayListChange}
+                    searchKeyword={searchKeyword}
+                    handleKeywordInput={handleKeywordInput}
+                    searchRange={searchRange}
+                    handleRangeChange={handleRangeChange}
                 />
             )}
             

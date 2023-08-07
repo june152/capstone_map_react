@@ -9,6 +9,7 @@ import { PlayItemList } from './components/models/PlayItemList';
 import PlaceVO from './components/models/PlaceVO';
 import ContactDialog from './components/common/ContactDialog';
 import BottomPanel from './components/common/BottomPanel';
+import WinFrameDialog from './components/BottomPanelComponent/WinFrameDialog';
 
 export type TabMenu = 
 	| "Home"
@@ -37,6 +38,8 @@ function App() {
 	const [conMarkerSetList, setConMarkerSetList] = useState<MarkerItemSet[]>()
 	const [resMarkerSetList, setResMarkerSetList] = useState<MarkerItemSet[]>()
 	const [playMarkerSetList, setPlayMarkerSetList] = useState<MarkerItemSet[]>()
+	const [searchMarkerSetList, setSearchMarkerSetList] = useState<MarkerItemSet>()
+	const [searchResult, setSearchResult] = useState<PlaceVO[]>()
 	//로딩창 모달
 	const [modalVisible, setModalVisible] = useState(false)
 	const [modalFade, setModalFade] = useState(false)
@@ -48,6 +51,7 @@ function App() {
     const [conLoad, setConLoad] = useState(false)
     const [resLoad, setResLoad] = useState(false)
 	const [playLoad, setPlayLoad] = useState(false)
+	const [searchLoad, setSearchLoad] = useState(false)
 	const handelConLoad = (isLoad: boolean) => {
 		setConLoad(isLoad)
 	}
@@ -57,14 +61,17 @@ function App() {
 	const handelPlayLoad = (isLoad: boolean) => {
 		setPlayLoad(isLoad)
 	}
+	const handelSearchLoad = (isLoad: boolean) => {
+		setSearchLoad(isLoad)
+	}
 
 	useEffect(() => {
-		if (conLoad || resLoad || playLoad) {
+		if (conLoad || resLoad || playLoad || searchLoad) {
 			handleModalToggle(true)
 		} else {
 			setModalFade(true)
 		}
-	}, [conLoad, resLoad, playLoad])
+	}, [conLoad, resLoad, playLoad, searchLoad])
 
 	//하단 드래그바
 	const [isActive, setIsActive] = useState(false)
@@ -85,7 +92,9 @@ function App() {
     const [catePlayCheck, setCatePlayCheck] = useState(true)
     const [conListItem, setConListItem] = useState([true, true, true, true, true, true, true, true, true])
     const [resListItem, setResListItem] = useState([true, true, true, true, true, true])
-    const [playListItem, setPlayListItem] = useState([true, true, true, true, true, true, true, true])
+	const [playListItem, setPlayListItem] = useState([true, true, true, true, true, true, true, true])
+	const [searchKeyword, setSearchKeyword] = useState("")
+	const [searchRange, setSearchRange] = useState(300)
 
     const handleConCheck = (checked: boolean) => {
         setCateConCheck(checked)
@@ -104,6 +113,13 @@ function App() {
 	}
 	const handlePlayListChange = (checkList: boolean[]) => {
 		setPlayListItem(checkList)
+	}
+
+	const handleKeywordInput = (keyword: string) => {
+		setSearchKeyword(keyword)
+	}
+	const handleRangeChange = (range: number) => {
+		setSearchRange(range)
 	}
 
 	useEffect(() => {
@@ -213,6 +229,10 @@ function App() {
 		setPlayItemList(playArr)
 		setPlayMarker(playArr)
 	}
+	const handleSearchResult = (result?: PlaceVO[]) => {
+		setSearchResult(result)
+		setSearchMarker(result)
+	}
 
 	const setConMarker = (conItemList?: ConItemList) => {
 		if (!conItemList) {
@@ -261,6 +281,14 @@ function App() {
 		setPlayMarkerSetList(tempArr as MarkerItemSet[])
 	}
 
+	const setSearchMarker = (result?: PlaceVO[]) => {
+		if (!result) {
+			return
+		}
+		// console.log("마커변환 결과 : ", drawConMarker(result))
+		setSearchMarkerSetList(drawConMarker(result))
+	}
+
 	const drawConMarker = (conPlaceArr: PlaceVO[]): MarkerItemSet => {
 		let markerList = new Array()
 		conPlaceArr.map((con) => {
@@ -275,13 +303,39 @@ function App() {
 		return {itemList: conPlaceArr, markerList: markerList} as MarkerItemSet
 	}
 
+	const winFrameApp = document.getElementById("win_frame_modal")
+	const innerFrame = document.getElementById("win_frame")
+	const handleCloseWinFrame = () => {
+		if (!winFrameApp) {
+			return
+		}
+		if (!innerFrame) {
+			return
+		}
+		winFrameApp.style.display = "none"
+		innerFrame.setAttribute('src', "")
+		setFrameFadeOut(false)
+	}
+
+	window.handleOpenWinFrame = (url:string) => {
+		if (!winFrameApp) {
+			return
+		}
+		if (!innerFrame) {
+			return
+		}
+		winFrameApp.style.display = "flex"
+		innerFrame.setAttribute('src', url)
+	}
+	const [frameFadeOut, setFrameFadeOut] = useState(false)
+
 	return (
 		<div id='wrapper' className='map_wrapper'>
 			<HeaderBar
 				element={
 					<img
 						src={TitleImg}
-						alt="근처를 부탁해!"
+						alt="주변을 부탁해!"
 						style={{ width: 200, height: 40, objectFit: 'contain', objectPosition: 'center' }}
 					/>
 				}
@@ -297,12 +351,20 @@ function App() {
 							handleConItemList={handleConItemList}
 							handleResItemList={handleResItemList}
 							handlePlayItemList={handlePlayItemList}
+							handleSearchResult={handleSearchResult}
 							conMarkerSetList={conMarkerSetList}
 							resMarkerSetList={resMarkerSetList}
 							playMarkerSetList={playMarkerSetList}
+							searchMarkerSetList={searchMarkerSetList}
 							handelConLoad={handelConLoad}
 							handelResLoad={handelResLoad}
 							handelPlayLoad={handelPlayLoad}
+							handelSearchLoad={handelSearchLoad}
+							conListItem={conListItem}
+							resListItem={resListItem}
+							playListItem={playListItem}
+							searchKeyword={searchKeyword}
+							searchRange={searchRange}
 
 						/>
 						}
@@ -314,6 +376,7 @@ function App() {
 							conItemList={conItemList}
 							resItemList={resItemList}
 							playItemList={playItemList}
+							searchResult={searchResult}
 							cateConCheck={cateConCheck}
 							cateResCheck={cateResCheck}
 							catePlayCheck={catePlayCheck}
@@ -326,6 +389,10 @@ function App() {
 							handleConListChange={handleConListChange}
 							handleResListChange={handleResListChange}
 							handlePlayListChange={handlePlayListChange}
+							searchKeyword={searchKeyword}
+							handleKeywordInput={handleKeywordInput}
+							searchRange={searchRange}
+							handleRangeChange={handleRangeChange}
 						/>
 					</div>
 				</article>
@@ -335,7 +402,8 @@ function App() {
 				modalVisible && (
 				<ContactDialog handleModalToggle={handleModalToggle} modalFade={modalFade} />
 				)
-			}  
+			}
+			<WinFrameDialog handleCloseWinFrame={handleCloseWinFrame} frameFadeOut={frameFadeOut} setFrameFadeOut={setFrameFadeOut} />
 		</div>
 	);
 }

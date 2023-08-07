@@ -19,6 +19,7 @@ const InfoWindow = (
     <p class="address">(지번) ${placeVO.address_name}</p>
     <p class="address">(연락처) ${placeVO.phone.length > 0 ? placeVO.phone : "없음"}</p>
     <p class="address">분류 : ${placeVO.category_name}</p>
+    <a class="url"; id="${placeVO.id}"; onClick="openWinFrame('${placeVO.place_url}')"; ><b>상세정보보기</b></a>
     </div>`
 };
 

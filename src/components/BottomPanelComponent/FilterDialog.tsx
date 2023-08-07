@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import ConMarker from '../../assets/mk_10.png'
 import ResMarker from '../../assets/mk_1.png'
 import PlayMarker from '../../assets/mk_6.png'
@@ -18,6 +18,10 @@ interface FilterDialogProps {
     handleConListChange: Function,
     handleResListChange: Function,
     handlePlayListChange: Function,
+    searchKeyword: string,
+    handleKeywordInput: Function,
+    searchRange: number,
+    handleRangeChange: Function,
 }
 
 const FilterDialog = (
@@ -36,6 +40,10 @@ const FilterDialog = (
         handleConListChange,
         handleResListChange,
         handlePlayListChange,
+        searchKeyword,
+        handleKeywordInput,
+        searchRange,
+        handleRangeChange,
     }
     :FilterDialogProps) => {
     const conList = ["편의점", "마트", "세탁소", "미용실", "스터디카페", "은행", "병원", "약국", "헬스장"]
@@ -256,6 +264,21 @@ const FilterDialog = (
                                         <input
                                             type="text"
                                             placeholder="검색어를 입력해주세요"
+                                            value={searchKeyword}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                handleKeywordInput(e.target.value)
+                                            }}
+                                        />
+                                        <p>검색 범위 {`(${searchRange})`}</p>
+                                        <input
+                                            type='range'
+                                            value={searchRange}
+                                            min={100}
+                                            max={500}
+                                            step={1}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                handleRangeChange(e.target.value)
+                                            }}
                                         />
                                     </div>
                                 </div>

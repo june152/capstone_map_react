@@ -6,8 +6,10 @@ import { PlayItemList } from '../models/PlayItemList';
 import ConMarker from '../../assets/mk_10.png'
 import ResMarker from '../../assets/mk_1.png'
 import PlayMarker from '../../assets/mk_6.png'
+import SearchMarker from '../../assets/mk_13.png'
 import InfoWindow from './InfoWindow';
 import { MarkerItemSet } from '../../App';
+import WinFrameDialog from '../BottomPanelComponent/WinFrameDialog';
 
 interface KakaoMapComponentProps {
     conItemList?: ConItemList,
@@ -16,12 +18,20 @@ interface KakaoMapComponentProps {
     handleConItemList: Function,
     handleResItemList: Function,
     handlePlayItemList: Function,
+    handleSearchResult: Function,
     conMarkerSetList?: MarkerItemSet[],
     resMarkerSetList?: MarkerItemSet[],
     playMarkerSetList?: MarkerItemSet[],
+    searchMarkerSetList?: MarkerItemSet,
     handelConLoad: Function,
     handelResLoad: Function,
     handelPlayLoad: Function,
+    handelSearchLoad: Function,
+    conListItem: boolean[],
+    resListItem: boolean[],
+    playListItem: boolean[],
+    searchKeyword: string,
+    searchRange: number,
 }
 
 const KakaoMapComponent = ({
@@ -31,12 +41,20 @@ const KakaoMapComponent = ({
     handleConItemList,
     handleResItemList,
     handlePlayItemList,
+    handleSearchResult,
     conMarkerSetList,
     resMarkerSetList,
     playMarkerSetList,
+    searchMarkerSetList,
     handelConLoad,
     handelResLoad,
     handelPlayLoad,
+    handelSearchLoad,
+    conListItem,
+    resListItem,
+    playListItem,
+    searchKeyword,
+    searchRange,
 }: KakaoMapComponentProps) => {
     const [mapState, setMapState] = useState<any>()
     //현재 내 위치
@@ -180,6 +198,37 @@ const KakaoMapComponent = ({
             })
         }
 
+        if (searchMarkerSetList) {
+            if (searchMarkerSetList.markerList) {
+                if (searchMarkerSetList.markerList.length > 0) {
+                    searchMarkerSetList.markerList.map((search, idx) => {
+                        const infoWindow = new window.kakao.maps.InfoWindow({
+                                content: InfoWindow(searchMarkerSetList.itemList[idx])
+                        })
+                        
+                        let imageSize = new window.kakao.maps.Size(20,24)
+                        let markerImg = new window.kakao.maps.MarkerImage(SearchMarker, imageSize)
+
+                        search.setImage(markerImg)
+                        search.setMap(map)
+
+                        window.kakao.maps.event.addListener(search, "click", () => {
+                            if(infoWindow.getMap()) {
+                                infoWindow.close()
+                            } else {
+                                infoWindow.open(map, search)
+                                let info_window = document.querySelectorAll('.info_window')
+                                info_window.forEach((e:any) => {
+                                    e.parentElement.parentElement.style.border = "10px";
+                                    e.parentElement.parentElement.style.background = "unset";
+                                })
+                            }
+                        })
+                    })
+                }
+            }
+        }
+
         // 지도 클릭 이벤트 핸들러 등록
         window.kakao.maps.event.addListener(map, "click", (mouseEvent: any) => {
             setCLevel(map.getLevel())
@@ -195,7 +244,7 @@ const KakaoMapComponent = ({
                 handelConLoad(false)
             })
             ResArrSetting(clickedLatLng).then((res) => {
-                console.log("ResArrSetting : ", res)
+                // console.log("ResArrSetting : ", res)
                 handleResItemList(res)
                 handelResLoad(false)
             })
@@ -204,6 +253,13 @@ const KakaoMapComponent = ({
                 handlePlayItemList(res)
                 handelPlayLoad(false)
             })
+            if (searchKeyword.length > 0) {
+                SearchArrSetting(clickedLatLng).then((res) => {
+                    // console.log("키워드 검색 결과 : ", res)
+                    handleSearchResult(res)
+                    handelSearchLoad(false)
+                })
+            }
         });
 
         window.kakao.maps.event.addListener(map, "dragend", () => {
@@ -212,20 +268,20 @@ const KakaoMapComponent = ({
             setCLat(center.getLat())
             setCLng(center.getLng()) 
         })
-    }, [conMarkerSetList,resMarkerSetList,playMarkerSetList])
+    }, [conMarkerSetList,resMarkerSetList,playMarkerSetList,searchMarkerSetList,conListItem,resListItem,playListItem,searchKeyword])
 
     const ConArrSetting = async (latlng: any) => {
         handelConLoad(true)
         let conResp: ConItemList = {
-            con1: await FindPlace.findPlace(latlng, '편의점', 250),
-            con2: await FindPlace.findPlace(latlng, '마트', 250),
-            con3: await FindPlace.findPlace(latlng, '세탁소', 250),
-            con4: await FindPlace.findPlace(latlng, '미용실', 250),
-            con5: await FindPlace.findPlace(latlng, '스터디카페', 250),
-            con6: await FindPlace.findPlace(latlng, '은행', 500),
-            con7: await FindPlace.findPlace(latlng, '병원', 1000),
-            con8: await FindPlace.findPlace(latlng, '약국', 1000),
-            con9: await FindPlace.findPlace(latlng, '헬스장', 250),
+            con1: conListItem[0] ? await FindPlace.findPlace(latlng, '편의점', 250) : undefined,
+            con2: conListItem[1] ? await FindPlace.findPlace(latlng, '마트', 250) : undefined,
+            con3: conListItem[2] ? await FindPlace.findPlace(latlng, '세탁소', 250) : undefined,
+            con4: conListItem[3] ? await FindPlace.findPlace(latlng, '미용실', 250) : undefined,
+            con5: conListItem[4] ? await FindPlace.findPlace(latlng, '스터디카페', 250) : undefined,
+            con6: conListItem[5] ? await FindPlace.findPlace(latlng, '은행', 500) : undefined,
+            con7: conListItem[6] ? await FindPlace.findPlace(latlng, '병원', 1000) : undefined,
+            con8: conListItem[7] ? await FindPlace.findPlace(latlng, '약국', 1000) : undefined,
+            con9: conListItem[8] ? await FindPlace.findPlace(latlng, '헬스장', 250) : undefined,
         }
         
         return conResp
@@ -234,12 +290,12 @@ const KakaoMapComponent = ({
     const ResArrSetting = async (latlng: any) => {
         handelResLoad(true)
         let resResp: ResItemList = {
-            res1: await FindPlace.findPlace(latlng, '한식', 250),
-            res2: await FindPlace.findPlace(latlng, '양식', 250),
-            res3: await FindPlace.findPlace(latlng, '중식', 250),
-            res4: await FindPlace.findPlace(latlng, '일식', 250),
-            res5: await FindPlace.findPlace(latlng, '분식', 250),
-            res6: await FindPlace.findPlace(latlng, '패스트푸드', 250),
+            res1: resListItem[0] ? await FindPlace.findPlace(latlng, '한식', 250) : undefined,
+            res2: resListItem[1] ? await FindPlace.findPlace(latlng, '양식', 250) : undefined,
+            res3: resListItem[2] ? await FindPlace.findPlace(latlng, '중식', 250) : undefined,
+            res4: resListItem[3] ? await FindPlace.findPlace(latlng, '일식', 250) : undefined,
+            res5: resListItem[4] ? await FindPlace.findPlace(latlng, '분식', 250) : undefined,
+            res6: resListItem[5] ? await FindPlace.findPlace(latlng, '패스트푸드', 250) : undefined,
         }
 
         return resResp
@@ -248,17 +304,22 @@ const KakaoMapComponent = ({
     const PlayArrSetting = async (latlng: any) => {
         handelPlayLoad(true)
         let playResp: PlayItemList = {
-            play1: await FindPlace.findPlace(latlng, 'PC방', 250),
-            play2: await FindPlace.findPlace(latlng, '오락실', 250),
-            play3: await FindPlace.findPlace(latlng, '만화카페', 250),
-            play4: await FindPlace.findPlace(latlng, '노래방', 250),
-            play5: await FindPlace.findPlace(latlng, '영화관', 1000),
-            play6: await FindPlace.findPlace(latlng, '호프', 250),
-            play7: await FindPlace.findPlace(latlng, '이자카야', 250),
-            play8: await FindPlace.findPlace(latlng, '칵테일바', 250)
+            play1: playListItem[0] ? await FindPlace.findPlace(latlng, 'PC방', 250) : undefined,
+            play2: playListItem[1] ? await FindPlace.findPlace(latlng, '오락실', 250) : undefined,
+            play3: playListItem[2] ? await FindPlace.findPlace(latlng, '만화카페', 250) : undefined,
+            play4: playListItem[3] ? await FindPlace.findPlace(latlng, '노래방', 250) : undefined,
+            play5: playListItem[4] ? await FindPlace.findPlace(latlng, '영화관', 1000) : undefined,
+            play6: playListItem[5] ? await FindPlace.findPlace(latlng, '호프', 250) : undefined,
+            play7: playListItem[6] ? await FindPlace.findPlace(latlng, '이자카야', 250) : undefined,
+            play8: playListItem[7] ? await FindPlace.findPlace(latlng, '칵테일바', 250) : undefined,
         }
 
         return playResp
+    }
+
+    const SearchArrSetting = async (latlng: any) => {
+        handelSearchLoad(true)
+        return await FindPlace.findPlace(latlng, searchKeyword, searchRange);
     }
 
     const PubSetting = async (latlng: any) => {
