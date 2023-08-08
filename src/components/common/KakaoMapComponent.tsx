@@ -111,12 +111,25 @@ const KakaoMapComponent = ({
 			console.error("Geolocation is not supported.");
         }
 
+        let clusterStyles = [
+            {
+                width: '30px',
+                height: '30px',
+                background: 'rgba(255, 0, 0, 0.5)',
+                borderRadius: '50%',
+                color: '#fff',
+                textAlign: 'center',
+                lineHeight: '30px'
+            }
+        ];
+
         const clusterer = new window.kakao.maps.MarkerClusterer({
             map: map,
             averageCenter: true,
             minLevel: 1,
             disableClickZoom: true,
             gridSize: 15,
+            styles: clusterStyles,
         })
 
         if (conMarkerSetList && conMarkerSetList.length > 0) {
