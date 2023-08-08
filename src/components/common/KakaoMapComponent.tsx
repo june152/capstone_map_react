@@ -10,6 +10,7 @@ import SearchMarker from '../../assets/mk_13.png'
 import InfoWindow from './InfoWindow';
 import { MarkerItemSet } from '../../App';
 import WinFrameDialog from '../BottomPanelComponent/WinFrameDialog';
+import ClusterInfoWindow from './ClusterInfoWindow';
 
 interface KakaoMapComponentProps {
     conItemList?: ConItemList,
@@ -32,6 +33,7 @@ interface KakaoMapComponentProps {
     playListItem: boolean[],
     searchKeyword: string,
     searchRange: number,
+    clusterItemState: any,
 }
 
 const KakaoMapComponent = ({
@@ -55,7 +57,9 @@ const KakaoMapComponent = ({
     playListItem,
     searchKeyword,
     searchRange,
+    clusterItemState,
 }: KakaoMapComponentProps) => {
+    //Map
     const [mapState, setMapState] = useState<any>()
     //현재 내 위치
     const [myLatLng, setMyLatLng] = useState()
@@ -65,10 +69,11 @@ const KakaoMapComponent = ({
     const [lng, setLng] = useState<number>()
     //현재 map level
     const [cLevel, setCLevel] = useState<number>()
-    //클릭위치 끝
+    //클릭위치 끝 -> 현재 중심
     const [cLat, setCLat] = useState<number>()
     const [cLng, setCLng] = useState<number>()
     
+    //맵 베이스 생성
     useEffect(() => {
         const container = document.getElementById("map");
         const options = {
@@ -76,7 +81,8 @@ const KakaoMapComponent = ({
             level: cLevel ?? 4 // 지도의 확대 레벨
         };
         const map = new window.kakao.maps.Map(container, options);
-        setMapState(map);
+        //최초 맵 생성
+        setMapState(map)
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -105,6 +111,14 @@ const KakaoMapComponent = ({
 			console.error("Geolocation is not supported.");
         }
 
+        const clusterer = new window.kakao.maps.MarkerClusterer({
+            map: map,
+            averageCenter: true,
+            minLevel: 1,
+            disableClickZoom: true,
+            gridSize: 15,
+        })
+
         if (conMarkerSetList && conMarkerSetList.length > 0) {
             conMarkerSetList.map((conMarkerList) => {
                 if (conMarkerList && conMarkerList.markerList) {
@@ -117,6 +131,7 @@ const KakaoMapComponent = ({
                             let imageSize = new window.kakao.maps.Size(20,24)
                             let markerImg = new window.kakao.maps.MarkerImage(ConMarker, imageSize)
                             conMarker.setImage(markerImg)
+                            conMarker.setTitle(conMarkerList.itemList[idx].place_name)
                             conMarker.setMap(map)
                             window.kakao.maps.event.addListener(conMarker, "click", () => {
                                 if(infoWindow.getMap()) {
@@ -131,6 +146,7 @@ const KakaoMapComponent = ({
                                 }
                             })
                         })
+                        clusterer.addMarkers(conMarkerList.markerList)
                     }
                 }
             })
@@ -148,6 +164,7 @@ const KakaoMapComponent = ({
                             let imageSize = new window.kakao.maps.Size(20,24)
                             let markerImg = new window.kakao.maps.MarkerImage(ResMarker, imageSize)
                             resMarker.setImage(markerImg)
+                            resMarker.setTitle(resMarkerList.itemList[idx].place_name)
                             resMarker.setMap(map)
                             window.kakao.maps.event.addListener(resMarker, "click", () => {
                                 if(infoWindow.getMap()) {
@@ -162,6 +179,7 @@ const KakaoMapComponent = ({
                                 }
                             })
                         })
+                        clusterer.addMarkers(resMarkerList.markerList)
                     }
                 }
             })
@@ -179,6 +197,7 @@ const KakaoMapComponent = ({
                             let imageSize = new window.kakao.maps.Size(20,24)
                             let markerImg = new window.kakao.maps.MarkerImage(PlayMarker, imageSize)
                             playMarker.setImage(markerImg)
+                            playMarker.setTitle(playMarkerList.itemList[idx].place_name)
                             playMarker.setMap(map)
                             window.kakao.maps.event.addListener(playMarker, "click", () => {
                                 if(infoWindow.getMap()) {
@@ -193,6 +212,7 @@ const KakaoMapComponent = ({
                                 }
                             })
                         })
+                        clusterer.addMarkers(playMarkerList.markerList)
                     }
                 }
             })
@@ -225,6 +245,7 @@ const KakaoMapComponent = ({
                             }
                         })
                     })
+                    clusterer.addMarkers(searchMarkerSetList.markerList)
                 }
             }
         }
@@ -262,13 +283,65 @@ const KakaoMapComponent = ({
             }
         });
 
+        //드래그 후 중심좌표 변경
         window.kakao.maps.event.addListener(map, "dragend", () => {
             setCLevel(map.getLevel())
             const center = map.getCenter()
             setCLat(center.getLat())
             setCLng(center.getLng()) 
         })
-    }, [conMarkerSetList,resMarkerSetList,playMarkerSetList,searchMarkerSetList,conListItem,resListItem,playListItem,searchKeyword])
+
+        //스크롤 이벤트
+        window.kakao.maps.event.addListener(map, "zoom_changed", () => {
+            setCLevel(map.getLevel())
+            const center = map.getCenter()
+            setCLat(center.getLat())
+            setCLng(center.getLng()) 
+            window.handleClusterWindowClose()
+        })
+
+        //클러스터 이벤트 등록
+        window.kakao.maps.event.addListener(clusterer, 'clusterclick', (cluster:any) => {
+            console.log("cluster.getMarkers() : ", cluster.getMarkers())
+            let test = cluster.getMarkers()
+            console.log(test[0])
+            const clusterWindow = new window.kakao.maps.InfoWindow({
+                content: ClusterInfoWindow(cluster.getMarkers(), map),
+                position: cluster.getCenter(),
+            })
+            let winExist = document.getElementById("cluster_window")
+            if (winExist) {
+                winExist.remove()
+            }
+            if(clusterWindow.getMap()) {
+                clusterWindow.close()
+            } else {
+                clusterWindow.setMap(map)
+                // clusterWindow.open(map, cluster)
+                let cluster_window = document.querySelectorAll('.cluster_window')
+                cluster_window.forEach((e:any) => {
+                    e.parentElement.parentElement.style.border = "10px";
+                    e.parentElement.previousElementSibling.remove()
+                    e.parentElement.parentElement.style.background = "unset";
+                })
+            }
+            // clusterWindow.setMap(map)
+        })
+        
+    }, [conMarkerSetList, resMarkerSetList, playMarkerSetList, searchMarkerSetList, conListItem, resListItem, playListItem, searchKeyword])
+
+    useEffect(() => {
+        if (clusterItemState !== null) {
+            window.handleClusterWindowClose()
+            clusterItemState.setMap(mapState)
+            let cluster_item = document.querySelectorAll('.cluster_item')
+            cluster_item.forEach((e:any) => {
+                e.parentElement.parentElement.style.border = "10px";
+                e.parentElement.previousElementSibling.remove()
+                e.parentElement.parentElement.style.background = "unset";
+            })
+        }
+    }, [clusterItemState])
 
     const ConArrSetting = async (latlng: any) => {
         handelConLoad(true)
@@ -327,7 +400,9 @@ const KakaoMapComponent = ({
     }
 
     return (
-        <div id='map' className='map_inner'></div>
+        <React.Fragment>
+            <div id='map' className='map_inner'></div>
+        </React.Fragment>        
     );
 };
 

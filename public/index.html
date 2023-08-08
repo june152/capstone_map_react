@@ -52,5 +52,17 @@
         window.handleOpenWinFrame(url)
       }
     }
+
+    function closeClusterWindow() {
+      if(window.handleClusterWindowClose) {
+        window.handleClusterWindowClose()
+      }
+    }
+
+    function selectClusterItem(position, title, map) {
+      if(window.clusterItemView) {
+        window.clusterItemView(position, title, map)
+      }
+    }
   </script>
 </html>

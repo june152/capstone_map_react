@@ -193,6 +193,138 @@ main .container>div {
   text-decoration: underline;
 }
 
+/* 클러스터 윈도우 */
+.cluster_window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -85%);
+  z-index: 15000;
+  min-width: 250px;
+  max-width: 400px;
+  min-height: 100px;
+  max-height: 200px;
+  background: #fff;
+  border-radius: 5px;
+  padding: 10px;
+  border: 1px solid #dedede;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .15);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.cluster_window .cluster_header {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.cluster_window .cluster_header h4 {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1 1 auto;
+  color: #555;
+}
+
+.cluster_window .cluster_header a {
+  display: block;
+  width: 12px;
+  height: 12px;
+  background: url(../assets/ic_popup_close2.png) 50% 50% no-repeat;
+  background-size: cover;
+}
+
+.cluster_window ul li,
+.cluster_window ul li a {
+  width: 100%;
+}
+
+.cluster_window ul li a {
+  display: inline-block;
+  padding: 6px 8px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #dbdee0;
+  background: #fff;
+  transition: all .2s;
+}
+
+.cluster_window ul li a:hover,
+.cluster_window ul li a.on {
+  background: #f7f9fa;
+}
+
+.cluster_window ul li a .list_table {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.cluster_window ul li a .list_table .title {
+  width: 100%;
+}
+
+/* 클러스터 아이템 */
+/* 지도 인포윈도우 */
+.cluster_item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -80%);
+  z-index: 10;
+  min-width: 200px;
+  max-width: 300px;
+  background: #fff;
+  border-radius: 5px;
+  padding: 10px;
+  border: 1px solid #dedede;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .15);
+}
+
+.cluster_item .cluster_header {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.cluster_item .cluster_header h4 {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1 1 auto;
+  color: #555;
+}
+
+.cluster_item .cluster_header a {
+  display: block;
+  width: 12px;
+  height: 12px;
+  background: url(../assets/ic_popup_close2.png) 50% 50% no-repeat;
+  background-size: cover;
+}
+
+.cluster_item h4 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cluster_item .address {
+  font-size: 12px;
+  color: #555;
+}
+
+.cluster_item .url {
+  font-size: 12px;
+}
+
+.cluster_item a b {
+  font-size: 12px;
+  color: #0068c3;
+  text-decoration: underline;
+}
+
 button:hover {
   background-color: rgba(250, 144, 144, 0.733);
 }

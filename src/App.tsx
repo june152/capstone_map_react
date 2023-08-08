@@ -10,6 +10,8 @@ import PlaceVO from './components/models/PlaceVO';
 import ContactDialog from './components/common/ContactDialog';
 import BottomPanel from './components/common/BottomPanel';
 import WinFrameDialog from './components/BottomPanelComponent/WinFrameDialog';
+import ClusteritemWindow from './components/common/ClusteritemWindow';
+import FindPlace from './utils/FindPlace';
 
 export type TabMenu = 
 	| "Home"
@@ -327,6 +329,34 @@ function App() {
 		winFrameApp.style.display = "flex"
 		innerFrame.setAttribute('src', url)
 	}
+	window.handleClusterWindowClose = () => {
+		const clusterWindow = document.getElementById("cluster_window")
+		if (clusterWindow) {
+			clusterWindow.remove()
+		}
+		const clusterItem = document.getElementById("cluster_item")
+		if (clusterItem) {
+			clusterItem.remove()
+		}
+	}
+	const [clusterItemState, setClusterItemState] = useState<any>(null)
+	window.clusterItemView = (position: any, title: string, map: any) => {
+		let lat = Number(position.replaceAll('(', '').replaceAll(')', '').split(" ")[0])
+		let lng = Number(position.replaceAll('(', '').replaceAll(')', '').split(" ")[1])
+		let latlng = new window.kakao.maps.LatLng(lat, lng)
+		getPlaceInfoByTitle(latlng, title).then((res) => {
+			if (res) {
+				const clusterItemWindow = new window.kakao.maps.InfoWindow({
+					content: ClusteritemWindow(res[0]),
+					position: new window.kakao.maps.LatLng(lat, lng),
+				})
+				setClusterItemState(clusterItemWindow)
+			}
+		})
+	}
+	const getPlaceInfoByTitle = async (position: any ,title: string) => {
+		return await FindPlace.findPlace(position, title, 100)
+	}
 	const [frameFadeOut, setFrameFadeOut] = useState(false)
 
 	return (
@@ -365,7 +395,7 @@ function App() {
 							playListItem={playListItem}
 							searchKeyword={searchKeyword}
 							searchRange={searchRange}
-
+							clusterItemState={clusterItemState}
 						/>
 						}
 						<BottomPanel
