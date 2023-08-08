@@ -338,6 +338,14 @@ function App() {
 		if (clusterItem) {
 			clusterItem.remove()
 		}
+		const topDummyTag = document.getElementById("top_dummy_tag")
+		const midDummytag = document.getElementById("mid_dummy_tag")
+		if (topDummyTag) {
+			topDummyTag.remove()
+		}
+		if (midDummytag) {
+			midDummytag.remove()
+		}
 	}
 	const [clusterItemState, setClusterItemState] = useState<any>(null)
 	window.clusterItemView = (position: any, title: string, map: any) => {

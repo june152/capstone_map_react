@@ -319,7 +319,9 @@ const KakaoMapComponent = ({
                 clusterWindow.setMap(map)
                 // clusterWindow.open(map, cluster)
                 let cluster_window = document.querySelectorAll('.cluster_window')
-                cluster_window.forEach((e:any) => {
+                cluster_window.forEach((e: any) => {
+                    e.parentNode.parentNode.id = "top_dummy_tag"
+                    e.parentNode.id = "mid_dummy_tag"
                     e.parentElement.parentElement.style.border = "10px";
                     e.parentElement.previousElementSibling.remove()
                     e.parentElement.parentElement.style.background = "unset";
@@ -335,7 +337,9 @@ const KakaoMapComponent = ({
             window.handleClusterWindowClose()
             clusterItemState.setMap(mapState)
             let cluster_item = document.querySelectorAll('.cluster_item')
-            cluster_item.forEach((e:any) => {
+            cluster_item.forEach((e: any) => {
+                e.parentNode.parentNode.id = "top_dummy_tag"
+                e.parentNode.id = "mid_dummy_tag"
                 e.parentElement.parentElement.style.border = "10px";
                 e.parentElement.previousElementSibling.remove()
                 e.parentElement.parentElement.style.background = "unset";
