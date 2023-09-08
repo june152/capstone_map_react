@@ -327,7 +327,8 @@ function App() {
 			return
 		}
 		winFrameApp.style.display = "flex"
-		innerFrame.setAttribute('src', url)
+		// innerFrame.setAttribute('src', url)
+		innerFrame.setAttribute('src', "https://" + url.split('//')[1])
 	}
 	window.handleClusterWindowClose = () => {
 		const clusterWindow = document.getElementById("cluster_window")

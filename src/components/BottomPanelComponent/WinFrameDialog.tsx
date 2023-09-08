@@ -41,7 +41,7 @@ const WinFrameDialog = (
                                     ></a>
                                 </div>
                                 <div className="popup_con2">
-                                    <iframe id="win_frame" src='http://place.map.kakao.com/10007451'>
+                                    <iframe id="win_frame">
                                     </iframe>
                                 </div>
                             </div>
