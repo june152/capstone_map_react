@@ -34,6 +34,7 @@ interface KakaoMapComponentProps {
     searchKeyword: string,
     searchRange: number,
     clusterItemState: any,
+    modalVisible: boolean,
 }
 
 const KakaoMapComponent = ({
@@ -58,6 +59,7 @@ const KakaoMapComponent = ({
     searchKeyword,
     searchRange,
     clusterItemState,
+    modalVisible,
 }: KakaoMapComponentProps) => {
     //Map
     const [mapState, setMapState] = useState<any>()
@@ -75,275 +77,278 @@ const KakaoMapComponent = ({
     
     //맵 베이스 생성
     useEffect(() => {
-        const container = document.getElementById("map");
-        const options = {
-            center: new window.kakao.maps.LatLng(cLat ?? 35.17690999613079, cLng ?? 126.90610797027583), // 지도의 중심좌표
-            level: cLevel ?? 4 // 지도의 확대 레벨
-        };
-        const map = new window.kakao.maps.Map(container, options);
-        //최초 맵 생성
-        setMapState(map)
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    // 현재 위치 좌표 생성
-                    console.log("현재위치 좌표", latitude, longitude);
-					const currentLatLng = new window.kakao.maps.LatLng(
-						latitude,
-						longitude
-                    );
-                    if (!cLat) {
-                        setCLat(currentLatLng.getLat())
-                        setCLng(currentLatLng.getLng()) 
-                    }
-                    
-                    setMyLatLng(currentLatLng);
-                    if (!cLat) {
-                        map.setCenter(currentLatLng)
-                    }
-                },
-				(error) => {
-					console.error("Error retrieving location : ", error);
-				}
-            )
-        } else {
-			console.error("Geolocation is not supported.");
-        }
-
-        let clusterStyles = [
-            {
-                width: '30px',
-                height: '30px',
-                background: 'rgba(255, 0, 0, 0.5)',
-                borderRadius: '50%',
-                color: '#fff',
-                textAlign: 'center',
-                lineHeight: '30px'
-            }
-        ];
-
-        const clusterer = new window.kakao.maps.MarkerClusterer({
-            map: map,
-            averageCenter: true,
-            minLevel: 1,
-            disableClickZoom: true,
-            gridSize: 15,
-            styles: clusterStyles,
-        })
-
-        if (conMarkerSetList && conMarkerSetList.length > 0) {
-            conMarkerSetList.map((conMarkerList) => {
-                if (conMarkerList && conMarkerList.markerList) {
-                    if (conMarkerList.markerList.length > 0) {
-                        conMarkerList.markerList.map((conMarker, idx) => {
-                            const infoWindow = new window.kakao.maps.InfoWindow({
-                                content: InfoWindow(conMarkerList.itemList[idx])
-                            })
-
-                            let imageSize = new window.kakao.maps.Size(20,24)
-                            let markerImg = new window.kakao.maps.MarkerImage(ConMarker, imageSize)
-                            conMarker.setImage(markerImg)
-                            conMarker.setTitle(conMarkerList.itemList[idx].place_name)
-                            conMarker.setMap(map)
-                            window.kakao.maps.event.addListener(conMarker, "click", () => {
-                                if(infoWindow.getMap()) {
-                                    infoWindow.close()
-                                } else {
-                                    infoWindow.open(map, conMarker)
-                                    let info_window = document.querySelectorAll('.info_window')
-                                    info_window.forEach((e:any) => {
-                                        e.parentElement.parentElement.style.border = "10px";
-                                        e.parentElement.parentElement.style.background = "unset";
-                                    })
-                                }
-                            })
-                        })
-                        clusterer.addMarkers(conMarkerList.markerList)
-                    }
-                }
-            })
-        }
-
-        if (resMarkerSetList && resMarkerSetList.length > 0) {
-            resMarkerSetList.map((resMarkerList) => {
-                if (resMarkerList && resMarkerList.markerList) {
-                    if (resMarkerList.markerList.length > 0) {
-                        resMarkerList.markerList.map((resMarker, idx) => {
-                            const infoWindow = new window.kakao.maps.InfoWindow({
-                                content: InfoWindow(resMarkerList.itemList[idx])
-                            })
-
-                            let imageSize = new window.kakao.maps.Size(20,24)
-                            let markerImg = new window.kakao.maps.MarkerImage(ResMarker, imageSize)
-                            resMarker.setImage(markerImg)
-                            resMarker.setTitle(resMarkerList.itemList[idx].place_name)
-                            resMarker.setMap(map)
-                            window.kakao.maps.event.addListener(resMarker, "click", () => {
-                                if(infoWindow.getMap()) {
-                                    infoWindow.close()
-                                } else {
-                                    infoWindow.open(map, resMarker)
-                                    let info_window = document.querySelectorAll('.info_window')
-                                    info_window.forEach((e:any) => {
-                                        e.parentElement.parentElement.style.border = "10px";
-                                        e.parentElement.parentElement.style.background = "unset";
-                                    })
-                                }
-                            })
-                        })
-                        clusterer.addMarkers(resMarkerList.markerList)
-                    }
-                }
-            })
-        }
-
-        if (playMarkerSetList && playMarkerSetList.length > 0) {
-            playMarkerSetList.map((playMarkerList) => {
-                if (playMarkerList && playMarkerList.markerList) {
-                    if (playMarkerList.markerList.length > 0) {
-                        playMarkerList.markerList.map((playMarker, idx) => {
-                            const infoWindow = new window.kakao.maps.InfoWindow({
-                                content: InfoWindow(playMarkerList.itemList[idx])
-                            })
-
-                            let imageSize = new window.kakao.maps.Size(20,24)
-                            let markerImg = new window.kakao.maps.MarkerImage(PlayMarker, imageSize)
-                            playMarker.setImage(markerImg)
-                            playMarker.setTitle(playMarkerList.itemList[idx].place_name)
-                            playMarker.setMap(map)
-                            window.kakao.maps.event.addListener(playMarker, "click", () => {
-                                if(infoWindow.getMap()) {
-                                    infoWindow.close()
-                                } else {
-                                    infoWindow.open(map, playMarker)
-                                    let info_window = document.querySelectorAll('.info_window')
-                                    info_window.forEach((e:any) => {
-                                        e.parentElement.parentElement.style.border = "10px";
-                                        e.parentElement.parentElement.style.background = "unset";
-                                    })
-                                }
-                            })
-                        })
-                        clusterer.addMarkers(playMarkerList.markerList)
-                    }
-                }
-            })
-        }
-
-        if (searchMarkerSetList) {
-            if (searchMarkerSetList.markerList) {
-                if (searchMarkerSetList.markerList.length > 0) {
-                    searchMarkerSetList.markerList.map((search, idx) => {
-                        const infoWindow = new window.kakao.maps.InfoWindow({
-                                content: InfoWindow(searchMarkerSetList.itemList[idx])
-                        })
+        if (!modalVisible) {
+            const container = document.getElementById("map");
+            const options = {
+                center: new window.kakao.maps.LatLng(cLat ?? 35.17690999613079, cLng ?? 126.90610797027583), // 지도의 중심좌표
+                level: cLevel ?? 4 // 지도의 확대 레벨
+            };
+            const map = new window.kakao.maps.Map(container, options);
+            //최초 맵 생성
+            setMapState(map)
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        // 현재 위치 좌표 생성
+                        console.log("현재위치 좌표", latitude, longitude);
+                        const currentLatLng = new window.kakao.maps.LatLng(
+                            latitude,
+                            longitude
+                        );
+                        if (!cLat) {
+                            setCLat(currentLatLng.getLat())
+                            setCLng(currentLatLng.getLng()) 
+                        }
                         
-                        let imageSize = new window.kakao.maps.Size(20,24)
-                        let markerImg = new window.kakao.maps.MarkerImage(SearchMarker, imageSize)
+                        setMyLatLng(currentLatLng);
+                        if (!cLat) {
+                            map.setCenter(currentLatLng)
+                        }
+                    },
+                    (error) => {
+                        console.error("Error retrieving location : ", error);
+                    }
+                )
+            } else {
+                console.error("Geolocation is not supported.");
+            }
 
-                        search.setImage(markerImg)
-                        search.setMap(map)
+            let clusterStyles = [
+                {
+                    width: '30px',
+                    height: '30px',
+                    background: 'rgba(255, 0, 0, 0.5)',
+                    borderRadius: '50%',
+                    color: '#fff',
+                    textAlign: 'center',
+                    lineHeight: '30px'
+                }
+            ];
 
-                        window.kakao.maps.event.addListener(search, "click", () => {
-                            if(infoWindow.getMap()) {
-                                infoWindow.close()
-                            } else {
-                                infoWindow.open(map, search)
-                                let info_window = document.querySelectorAll('.info_window')
-                                info_window.forEach((e:any) => {
-                                    e.parentElement.parentElement.style.border = "10px";
-                                    e.parentElement.parentElement.style.background = "unset";
+            const clusterer = new window.kakao.maps.MarkerClusterer({
+                map: map,
+                averageCenter: true,
+                minLevel: 1,
+                disableClickZoom: true,
+                gridSize: 15,
+                styles: clusterStyles,
+            })
+
+            if (conMarkerSetList && conMarkerSetList.length > 0) {
+                conMarkerSetList.map((conMarkerList) => {
+                    if (conMarkerList && conMarkerList.markerList) {
+                        if (conMarkerList.markerList.length > 0) {
+                            conMarkerList.markerList.map((conMarker, idx) => {
+                                const infoWindow = new window.kakao.maps.InfoWindow({
+                                    content: InfoWindow(conMarkerList.itemList[idx])
                                 })
-                            }
+
+                                let imageSize = new window.kakao.maps.Size(20,24)
+                                let markerImg = new window.kakao.maps.MarkerImage(ConMarker, imageSize)
+                                conMarker.setImage(markerImg)
+                                conMarker.setTitle(conMarkerList.itemList[idx].place_name)
+                                conMarker.setMap(map)
+                                window.kakao.maps.event.addListener(conMarker, "click", () => {
+                                    if(infoWindow.getMap()) {
+                                        infoWindow.close()
+                                    } else {
+                                        infoWindow.open(map, conMarker)
+                                        let info_window = document.querySelectorAll('.info_window')
+                                        info_window.forEach((e:any) => {
+                                            e.parentElement.parentElement.style.border = "10px";
+                                            e.parentElement.parentElement.style.background = "unset";
+                                        })
+                                    }
+                                })
+                            })
+                            clusterer.addMarkers(conMarkerList.markerList)
+                        }
+                    }
+                })
+            }
+
+            if (resMarkerSetList && resMarkerSetList.length > 0) {
+                resMarkerSetList.map((resMarkerList) => {
+                    if (resMarkerList && resMarkerList.markerList) {
+                        if (resMarkerList.markerList.length > 0) {
+                            resMarkerList.markerList.map((resMarker, idx) => {
+                                const infoWindow = new window.kakao.maps.InfoWindow({
+                                    content: InfoWindow(resMarkerList.itemList[idx])
+                                })
+
+                                let imageSize = new window.kakao.maps.Size(20,24)
+                                let markerImg = new window.kakao.maps.MarkerImage(ResMarker, imageSize)
+                                resMarker.setImage(markerImg)
+                                resMarker.setTitle(resMarkerList.itemList[idx].place_name)
+                                resMarker.setMap(map)
+                                window.kakao.maps.event.addListener(resMarker, "click", () => {
+                                    if(infoWindow.getMap()) {
+                                        infoWindow.close()
+                                    } else {
+                                        infoWindow.open(map, resMarker)
+                                        let info_window = document.querySelectorAll('.info_window')
+                                        info_window.forEach((e:any) => {
+                                            e.parentElement.parentElement.style.border = "10px";
+                                            e.parentElement.parentElement.style.background = "unset";
+                                        })
+                                    }
+                                })
+                            })
+                            clusterer.addMarkers(resMarkerList.markerList)
+                        }
+                    }
+                })
+            }
+
+            if (playMarkerSetList && playMarkerSetList.length > 0) {
+                playMarkerSetList.map((playMarkerList) => {
+                    if (playMarkerList && playMarkerList.markerList) {
+                        if (playMarkerList.markerList.length > 0) {
+                            playMarkerList.markerList.map((playMarker, idx) => {
+                                const infoWindow = new window.kakao.maps.InfoWindow({
+                                    content: InfoWindow(playMarkerList.itemList[idx])
+                                })
+
+                                let imageSize = new window.kakao.maps.Size(20,24)
+                                let markerImg = new window.kakao.maps.MarkerImage(PlayMarker, imageSize)
+                                playMarker.setImage(markerImg)
+                                playMarker.setTitle(playMarkerList.itemList[idx].place_name)
+                                playMarker.setMap(map)
+                                window.kakao.maps.event.addListener(playMarker, "click", () => {
+                                    if(infoWindow.getMap()) {
+                                        infoWindow.close()
+                                    } else {
+                                        infoWindow.open(map, playMarker)
+                                        let info_window = document.querySelectorAll('.info_window')
+                                        info_window.forEach((e:any) => {
+                                            e.parentElement.parentElement.style.border = "10px";
+                                            e.parentElement.parentElement.style.background = "unset";
+                                        })
+                                    }
+                                })
+                            })
+                            clusterer.addMarkers(playMarkerList.markerList)
+                        }
+                    }
+                })
+            }
+
+            if (searchMarkerSetList) {
+                if (searchMarkerSetList.markerList) {
+                    if (searchMarkerSetList.markerList.length > 0) {
+                        searchMarkerSetList.markerList.map((search, idx) => {
+                            const infoWindow = new window.kakao.maps.InfoWindow({
+                                    content: InfoWindow(searchMarkerSetList.itemList[idx])
+                            })
+                            
+                            let imageSize = new window.kakao.maps.Size(20,24)
+                            let markerImg = new window.kakao.maps.MarkerImage(SearchMarker, imageSize)
+
+                            search.setImage(markerImg)
+                            search.setMap(map)
+
+                            window.kakao.maps.event.addListener(search, "click", () => {
+                                if(infoWindow.getMap()) {
+                                    infoWindow.close()
+                                } else {
+                                    infoWindow.open(map, search)
+                                    let info_window = document.querySelectorAll('.info_window')
+                                    info_window.forEach((e:any) => {
+                                        e.parentElement.parentElement.style.border = "10px";
+                                        e.parentElement.parentElement.style.background = "unset";
+                                    })
+                                }
+                            })
                         })
-                    })
-                    clusterer.addMarkers(searchMarkerSetList.markerList)
+                        clusterer.addMarkers(searchMarkerSetList.markerList)
+                    }
                 }
             }
+
+            // 지도 클릭 이벤트 핸들러 등록
+            window.kakao.maps.event.addListener(map, "click", (mouseEvent: any) => {
+                setCLevel(map.getLevel())
+                const clickedLatLng = mouseEvent.latLng;
+                setClickLatLng(clickedLatLng)
+                setLat(clickedLatLng.getLat());
+                setLng(clickedLatLng.getLng());         
+                // console.log("clickedLatLng  :: ", clickedLatLng)
+                
+                ConArrSetting(clickedLatLng).then((res) => {
+                    // console.log("ConArrSetting : ", res)
+                    handleConItemList(res)
+                    handelConLoad(false)
+                })
+                ResArrSetting(clickedLatLng).then((res) => {
+                    // console.log("ResArrSetting : ", res)
+                    handleResItemList(res)
+                    handelResLoad(false)
+                })
+                PlayArrSetting(clickedLatLng).then((res) => {
+                    // console.log("PlayArrSetting : ", res)
+                    handlePlayItemList(res)
+                    handelPlayLoad(false)
+                })
+                if (searchKeyword.length > 0) {
+                    SearchArrSetting(clickedLatLng).then((res) => {
+                        // console.log("키워드 검색 결과 : ", res)
+                        handleSearchResult(res)
+                        handelSearchLoad(false)
+                    })
+                }
+            });
+
+            //드래그 후 중심좌표 변경
+            window.kakao.maps.event.addListener(map, "dragend", () => {
+                setCLevel(map.getLevel())
+                const center = map.getCenter()
+                setCLat(center.getLat())
+                setCLng(center.getLng()) 
+            })
+
+            //스크롤 이벤트
+            window.kakao.maps.event.addListener(map, "zoom_changed", () => {
+                setCLevel(map.getLevel())
+                const center = map.getCenter()
+                setCLat(center.getLat())
+                setCLng(center.getLng()) 
+                window.handleClusterWindowClose()
+            })
+
+            //클러스터 이벤트 등록
+            window.kakao.maps.event.addListener(clusterer, 'clusterclick', (cluster:any) => {
+                console.log("cluster.getMarkers() : ", cluster.getMarkers())
+                let test = cluster.getMarkers()
+                console.log(test[0])
+                const clusterWindow = new window.kakao.maps.InfoWindow({
+                    content: ClusterInfoWindow(cluster.getMarkers(), map),
+                    position: cluster.getCenter(),
+                })
+                let winExist = document.getElementById("cluster_window")
+                if (winExist) {
+                    winExist.remove()
+                }
+                if(clusterWindow.getMap()) {
+                    clusterWindow.close()
+                } else {
+                    clusterWindow.setMap(map)
+                    // clusterWindow.open(map, cluster)
+                    let cluster_window = document.querySelectorAll('.cluster_window')
+                    cluster_window.forEach((e: any) => {
+                        e.parentNode.parentNode.id = "top_dummy_tag"
+                        e.parentNode.id = "mid_dummy_tag"
+                        e.parentElement.parentElement.style.border = "10px";
+                        e.parentElement.previousElementSibling.remove()
+                        e.parentElement.parentElement.style.background = "unset";
+                    })
+                }
+                // clusterWindow.setMap(map)
+            })
         }
-
-        // 지도 클릭 이벤트 핸들러 등록
-        window.kakao.maps.event.addListener(map, "click", (mouseEvent: any) => {
-            setCLevel(map.getLevel())
-            const clickedLatLng = mouseEvent.latLng;
-            setClickLatLng(clickedLatLng)
-            setLat(clickedLatLng.getLat());
-			setLng(clickedLatLng.getLng());         
-            // console.log("clickedLatLng  :: ", clickedLatLng)
-            
-            ConArrSetting(clickedLatLng).then((res) => {
-                // console.log("ConArrSetting : ", res)
-                handleConItemList(res)
-                handelConLoad(false)
-            })
-            ResArrSetting(clickedLatLng).then((res) => {
-                // console.log("ResArrSetting : ", res)
-                handleResItemList(res)
-                handelResLoad(false)
-            })
-            PlayArrSetting(clickedLatLng).then((res) => {
-                // console.log("PlayArrSetting : ", res)
-                handlePlayItemList(res)
-                handelPlayLoad(false)
-            })
-            if (searchKeyword.length > 0) {
-                SearchArrSetting(clickedLatLng).then((res) => {
-                    // console.log("키워드 검색 결과 : ", res)
-                    handleSearchResult(res)
-                    handelSearchLoad(false)
-                })
-            }
-        });
-
-        //드래그 후 중심좌표 변경
-        window.kakao.maps.event.addListener(map, "dragend", () => {
-            setCLevel(map.getLevel())
-            const center = map.getCenter()
-            setCLat(center.getLat())
-            setCLng(center.getLng()) 
-        })
-
-        //스크롤 이벤트
-        window.kakao.maps.event.addListener(map, "zoom_changed", () => {
-            setCLevel(map.getLevel())
-            const center = map.getCenter()
-            setCLat(center.getLat())
-            setCLng(center.getLng()) 
-            window.handleClusterWindowClose()
-        })
-
-        //클러스터 이벤트 등록
-        window.kakao.maps.event.addListener(clusterer, 'clusterclick', (cluster:any) => {
-            console.log("cluster.getMarkers() : ", cluster.getMarkers())
-            let test = cluster.getMarkers()
-            console.log(test[0])
-            const clusterWindow = new window.kakao.maps.InfoWindow({
-                content: ClusterInfoWindow(cluster.getMarkers(), map),
-                position: cluster.getCenter(),
-            })
-            let winExist = document.getElementById("cluster_window")
-            if (winExist) {
-                winExist.remove()
-            }
-            if(clusterWindow.getMap()) {
-                clusterWindow.close()
-            } else {
-                clusterWindow.setMap(map)
-                // clusterWindow.open(map, cluster)
-                let cluster_window = document.querySelectorAll('.cluster_window')
-                cluster_window.forEach((e: any) => {
-                    e.parentNode.parentNode.id = "top_dummy_tag"
-                    e.parentNode.id = "mid_dummy_tag"
-                    e.parentElement.parentElement.style.border = "10px";
-                    e.parentElement.previousElementSibling.remove()
-                    e.parentElement.parentElement.style.background = "unset";
-                })
-            }
-            // clusterWindow.setMap(map)
-        })
         
-    }, [conMarkerSetList, resMarkerSetList, playMarkerSetList, searchMarkerSetList, conListItem, resListItem, playListItem, searchKeyword])
+        
+    }, [conMarkerSetList, resMarkerSetList, playMarkerSetList, searchMarkerSetList, conListItem, resListItem, playListItem, searchKeyword, modalVisible])
 
     useEffect(() => {
         if (clusterItemState !== null) {
@@ -418,7 +423,9 @@ const KakaoMapComponent = ({
 
     return (
         <React.Fragment>
-            <div id='map' className='map_inner'></div>
+            {!modalVisible && (
+                <div id='map' className='map_inner'></div>
+            )}
         </React.Fragment>        
     );
 };

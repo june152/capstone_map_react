@@ -404,6 +404,7 @@ function App() {
 							searchKeyword={searchKeyword}
 							searchRange={searchRange}
 							clusterItemState={clusterItemState}
+							modalVisible={modalVisible}
 						/>
 						}
 						<BottomPanel
